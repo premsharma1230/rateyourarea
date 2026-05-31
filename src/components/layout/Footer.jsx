@@ -107,7 +107,7 @@ export default function Footer() {
 
         <div className={styles.bottom}>
           <p className={styles.copyright}>
-            © 2024 RateYourArea. Real Residents. Real Reviews. ❄️
+            © 2026 RateYourArea. Real Residents. Real Reviews. ❄️
           </p>
           <div className={styles.badges}>
             <span className={styles.trustBadge}>

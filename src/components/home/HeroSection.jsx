@@ -1,9 +1,11 @@
 "use client";
 
-import Link from "next/link";
+import { useRouter } from "next/navigation";
+import { useState } from "react";
 import { motion } from "framer-motion";
 import { Search, ArrowRight } from "lucide-react";
 
+import { getExploreSearchUrl } from "@/lib/explore-search";
 import styles from "./HeroSection.module.scss";
 
 const fadeUp = {
@@ -16,6 +18,13 @@ const fadeUp = {
 };
 
 export default function HeroSection() {
+  const router = useRouter();
+  const [query, setQuery] = useState("");
+
+  const goToExplore = () => {
+    router.push(getExploreSearchUrl(query));
+  };
+
   return (
     <section className={styles.hero}>
       <div className={styles.glow1} aria-hidden />
@@ -58,12 +67,16 @@ export default function HeroSection() {
             noise, and community vibes before signing that lease.
           </motion.p>
 
-          <motion.div
+          <motion.form
             className={styles.searchBox}
             variants={fadeUp}
             initial="hidden"
             animate="visible"
             custom={0.4}
+            onSubmit={(e) => {
+              e.preventDefault();
+              goToExplore();
+            }}
           >
             <div className={styles.searchInner}>
               <Search className={styles.searchIcon} aria-hidden />
@@ -72,13 +85,15 @@ export default function HeroSection() {
                 placeholder="Search locality, city, or society..."
                 className={styles.searchInput}
                 aria-label="Search locality"
+                value={query}
+                onChange={(e) => setQuery(e.target.value)}
               />
             </div>
-            <Link href="/explore" className={styles.exploreBtn}>
+            <button type="submit" className={styles.exploreBtn}>
               Explore
               <ArrowRight className="size-5" aria-hidden />
-            </Link>
-          </motion.div>
+            </button>
+          </motion.form>
         </div>
       </div>
     </section>

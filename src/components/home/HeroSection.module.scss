@@ -213,6 +213,10 @@
   font-weight: 700;
   white-space: nowrap;
   transition: all 0.2s;
+  border: none;
+  cursor: pointer;
+  font-family: inherit;
+  font-size: inherit;
 
   :global(.light) & {
     @include neo-primary;

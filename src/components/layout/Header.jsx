@@ -62,7 +62,7 @@ export default function Header() {
               />
             </Link>
             <div className={styles.searchWrap}>
-              <SearchBar />
+              <SearchBar submitToExplore placeholder="Search area, city..." />
             </div>
           </div>
 
@@ -141,7 +141,12 @@ export default function Header() {
               >
                 <X className="size-6" />
               </button>
-              <SearchBar className="mt-6" />
+              <SearchBar
+                className="mt-6"
+                submitToExplore
+                placeholder="Search area, city..."
+                onSearch={() => setMobileOpen(false)}
+              />
               <nav className={styles.drawerNav}>
                 <Link
                   href="/"
