@@ -1,0 +1,100 @@
+@use "@/styles/variables" as *;
+@use "@/styles/mixins" as *;
+
+.page {
+  max-width: 480px;
+  margin: 0 auto;
+  padding: 2rem 1.25rem 6rem;
+
+  @media (min-width: 768px) {
+    padding: 3rem 2rem;
+  }
+}
+
+.card {
+  padding: 2rem 1.5rem;
+  border-radius: $radius-2xl;
+  text-align: center;
+
+  :global(.light) & {
+    @include neo-card;
+  }
+
+  :global(.dark) & {
+    @include neo-card-dark;
+    background: rgba(20, 28, 46, 0.88);
+    backdrop-filter: blur(16px);
+    border: 1px solid rgba($color-primary, 0.12);
+  }
+}
+
+.avatar {
+  @include flex-center;
+  width: 4.5rem;
+  height: 4.5rem;
+  margin: 0 auto 1rem;
+  border-radius: $radius-full;
+  color: $color-primary;
+
+  :global(.light) & {
+    @include neo-inset;
+    border-radius: $radius-full;
+  }
+
+  :global(.dark) & {
+    @include neo-inset-dark;
+    border-radius: $radius-full;
+  }
+}
+
+.title {
+  font-size: 1.5rem;
+  font-weight: 800;
+  margin-bottom: 0.25rem;
+}
+
+.subtitle,
+.email {
+  font-size: 0.9375rem;
+  margin-bottom: 1.5rem;
+  opacity: 0.75;
+}
+
+.email {
+  margin-bottom: 1.75rem;
+}
+
+.actions {
+  display: flex;
+  flex-direction: column;
+  gap: 0.625rem;
+  margin-bottom: 1.5rem;
+}
+
+.actionLink {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.5rem;
+  padding: 0.75rem 1rem;
+  border-radius: $radius-lg;
+  font-size: 0.875rem;
+  font-weight: 700;
+  text-decoration: none;
+  transition: background 0.2s;
+
+  :global(.light) & {
+    background: rgba($color-primary, 0.08);
+    color: $color-on-surface;
+  }
+
+  :global(.dark) & {
+    background: rgba($color-primary, 0.12);
+    color: $color-on-surface-dark;
+  }
+}
+
+.logoutBtn {
+  width: 100%;
+  gap: 0.5rem;
+}

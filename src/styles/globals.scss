@@ -1,4 +1,5 @@
 @use "variables" as *;
+@use "mixins" as *;
 @use "neomorphic";
 @use "glass";
 @use "animations";
@@ -26,6 +27,12 @@ html.dark .site-main {
       transparent 50%
     ),
     $color-bg-dark;
+}
+
+.site-main {
+  @include tablet {
+    padding-bottom: 5.75rem;
+  }
 }
 
 ::-webkit-scrollbar {

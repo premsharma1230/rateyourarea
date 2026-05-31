@@ -5,6 +5,10 @@
   padding: 5rem 0 2.5rem;
   transition: all 0.3s ease;
 
+  @include tablet {
+    display: none;
+  }
+
   :global(.light) & {
     background: $color-bg-light;
     border-top: 1px solid rgba($color-outline, 0.2);

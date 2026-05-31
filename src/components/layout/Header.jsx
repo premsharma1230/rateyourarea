@@ -5,12 +5,19 @@ import Image from "next/image";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { motion, AnimatePresence } from "framer-motion";
-import { Menu, X, ChevronDown, Plus } from "lucide-react";
+import { Menu, X, ChevronDown, Plus, User } from "lucide-react";
 
 import SearchBar from "@/components/shared/SearchBar";
 import ThemeToggle from "@/components/layout/ThemeToggle";
 import LoginModal from "@/components/forms/LoginModal";
+import { useAuth } from "@/components/providers/AuthProvider";
 import { LOGO_URL } from "@/lib/constants";
+import {
+  MAIN_NAV_ITEMS,
+  PROFILE_NAV_ITEM,
+  blogMenu,
+  isNavActive,
+} from "@/lib/nav-config";
 import {
   DropdownMenu,
   DropdownMenuContent,
@@ -18,13 +25,6 @@ import {
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
 import styles from "./Header.module.scss";
-
-const blogMenu = [
-  "Area Guides",
-  "Flat Buying Tips",
-  "Tenant Rights India",
-  "Builder News",
-];
 
 function NavDropdown({ label, children }) {
   return (
@@ -40,11 +40,11 @@ function NavDropdown({ label, children }) {
 
 export default function Header() {
   const pathname = usePathname();
+  const { isLoggedIn } = useAuth();
   const [mobileOpen, setMobileOpen] = useState(false);
   const [loginOpen, setLoginOpen] = useState(false);
 
-  const isHome = pathname === "/";
-  const isExplore = pathname === "/explore";
+  const closeDrawer = () => setMobileOpen(false);
 
   return (
     <>
@@ -67,40 +67,55 @@ export default function Header() {
           </div>
 
           <nav className={styles.nav}>
-            <Link
-              href="/"
-              className={`${styles.navLink} ${isHome ? styles.active : ""}`}
-            >
-              Home
-            </Link>
-            <Link
-              href="/explore"
-              className={`${styles.navLink} ${isExplore ? styles.active : ""}`}
-            >
-              Explore
-            </Link>
-            <NavDropdown label="Blog">
-              {blogMenu.map((item) => (
-                <DropdownMenuItem key={item} render={<Link href="/blog" />}>
-                  {item}
-                </DropdownMenuItem>
-              ))}
-            </NavDropdown>
+            {MAIN_NAV_ITEMS.map(({ href, label, match }) =>
+              label === "Blog" ? (
+                <NavDropdown key={href} label="Blog">
+                  {blogMenu.map((item) => (
+                    <DropdownMenuItem key={item} render={<Link href="/blog" />}>
+                      {item}
+                    </DropdownMenuItem>
+                  ))}
+                </NavDropdown>
+              ) : (
+                <Link
+                  key={href}
+                  href={href}
+                  className={`${styles.navLink} ${isNavActive(pathname, match) ? styles.active : ""}`}
+                >
+                  {label}
+                </Link>
+              )
+            )}
+            {isLoggedIn && (
+              <Link
+                href={PROFILE_NAV_ITEM.href}
+                className={`${styles.navLink} ${isNavActive(pathname, PROFILE_NAV_ITEM.match) ? styles.active : ""}`}
+              >
+                {PROFILE_NAV_ITEM.label}
+              </Link>
+            )}
           </nav>
 
           <div className={styles.right}>
             <ThemeToggle />
-            <button
-              type="button"
-              className={styles.loginBtn}
-              onClick={() => setLoginOpen(true)}
-            >
-              Login
-            </button>
+            {isLoggedIn ? (
+              <Link href="/profile" className={styles.profileBtn}>
+                <User className="size-4" aria-hidden />
+                <span className={styles.profileLabel}>Profile</span>
+              </Link>
+            ) : (
+              <button
+                type="button"
+                className={styles.loginBtn}
+                onClick={() => setLoginOpen(true)}
+              >
+                Login
+              </button>
+            )}
             <Link href="/review" className={styles.addReviewBtn}>
-              <Plus className="size-4 lg:hidden" aria-hidden />
-              <span className="hidden sm:inline">Add Review</span>
-              <span className="sm:hidden">Review</span>
+              <Plus className={styles.addReviewIcon} aria-hidden />
+              <span className={styles.addReviewLabelFull}>Add Review</span>
+              <span className={styles.addReviewLabelShort}>Review</span>
             </Link>
             <button
               type="button"
@@ -124,7 +139,7 @@ export default function Header() {
               initial={{ opacity: 0 }}
               animate={{ opacity: 1 }}
               exit={{ opacity: 0 }}
-              onClick={() => setMobileOpen(false)}
+              onClick={closeDrawer}
             />
             <motion.aside
               className={styles.drawer}
@@ -135,8 +150,8 @@ export default function Header() {
             >
               <button
                 type="button"
-                className={styles.menuBtn}
-                onClick={() => setMobileOpen(false)}
+                className={styles.drawerCloseBtn}
+                onClick={closeDrawer}
                 aria-label="Close menu"
               >
                 <X className="size-6" />
@@ -145,61 +160,39 @@ export default function Header() {
                 className="mt-6"
                 submitToExplore
                 placeholder="Search area, city..."
-                onSearch={() => setMobileOpen(false)}
+                onSearch={closeDrawer}
               />
               <nav className={styles.drawerNav}>
-                <Link
-                  href="/"
-                  className={styles.drawerLink}
-                  onClick={() => setMobileOpen(false)}
-                >
-                  Home
-                </Link>
-                <Link
-                  href="/explore"
-                  className={styles.drawerLink}
-                  onClick={() => setMobileOpen(false)}
-                >
-                  Explore
-                </Link>
-                <Link
-                  href="/top-rated"
-                  className={styles.drawerLink}
-                  onClick={() => setMobileOpen(false)}
-                >
-                  Top Rated
-                </Link>
-                <Link
-                  href="/worst-rated"
-                  className={styles.drawerLink}
-                  onClick={() => setMobileOpen(false)}
-                >
-                  Worst Rated
-                </Link>
-                <Link
-                  href="/blog"
-                  className={styles.drawerLink}
-                  onClick={() => setMobileOpen(false)}
-                >
-                  Blog
-                </Link>
-                <Link
-                  href="/review"
-                  className={styles.drawerLink}
-                  onClick={() => setMobileOpen(false)}
-                >
-                  Add Review
-                </Link>
-                <button
-                  type="button"
-                  className={styles.drawerLink}
-                  onClick={() => {
-                    setMobileOpen(false);
-                    setLoginOpen(true);
-                  }}
-                >
-                  Login
-                </button>
+                {MAIN_NAV_ITEMS.map(({ href, label, match }) => (
+                  <Link
+                    key={href}
+                    href={href}
+                    className={`${styles.drawerLink} ${isNavActive(pathname, match) ? styles.drawerLinkActive : ""}`}
+                    onClick={closeDrawer}
+                  >
+                    {label}
+                  </Link>
+                ))}
+                {isLoggedIn ? (
+                  <Link
+                    href={PROFILE_NAV_ITEM.href}
+                    className={`${styles.drawerLink} ${isNavActive(pathname, PROFILE_NAV_ITEM.match) ? styles.drawerLinkActive : ""}`}
+                    onClick={closeDrawer}
+                  >
+                    {PROFILE_NAV_ITEM.label}
+                  </Link>
+                ) : (
+                  <button
+                    type="button"
+                    className={styles.drawerLink}
+                    onClick={() => {
+                      closeDrawer();
+                      setLoginOpen(true);
+                    }}
+                  >
+                    Login
+                  </button>
+                )}
               </nav>
             </motion.aside>
           </>

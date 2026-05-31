@@ -15,13 +15,24 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
 import { Label } from "@/components/ui/label";
+import { useAuth } from "@/components/providers/AuthProvider";
 import styles from "./LoginModal.module.scss";
 
 export default function LoginModal({ open, onOpenChange }) {
   const [showPassword, setShowPassword] = useState(false);
   const [signupStep, setSignupStep] = useState(1);
+  const [loginEmail, setLoginEmail] = useState("");
+  const [signupName, setSignupName] = useState("");
+  const [signupEmail, setSignupEmail] = useState("");
+  const { login } = useAuth();
 
   const resetSignup = () => setSignupStep(1);
+
+  const handleLogin = () => {
+    if (!loginEmail.trim()) return;
+    login({ email: loginEmail, name: loginEmail.split("@")[0] });
+    onOpenChange(false);
+  };
 
   return (
     <Dialog
@@ -47,7 +58,14 @@ export default function LoginModal({ open, onOpenChange }) {
               <Label htmlFor="login-email" className={styles.label}>
                 Email
               </Label>
-              <Input id="login-email" type="email" placeholder="you@email.com" className={styles.input} />
+              <Input
+                id="login-email"
+                type="email"
+                placeholder="you@email.com"
+                className={styles.input}
+                value={loginEmail}
+                onChange={(e) => setLoginEmail(e.target.value)}
+              />
             </div>
             <div className={styles.field}>
               <Label htmlFor="login-password" className={styles.label}>
@@ -72,7 +90,9 @@ export default function LoginModal({ open, onOpenChange }) {
             <a href="#" className={styles.forgot}>
               Forgot Password?
             </a>
-            <Button className="w-full">Login</Button>
+            <Button className="w-full" onClick={handleLogin}>
+              Login
+            </Button>
             <div className={styles.divider}>OR</div>
             <Button variant="outline" className={styles.socialBtn}>
               Continue with Google
@@ -109,11 +129,20 @@ export default function LoginModal({ open, onOpenChange }) {
                 >
                   <div className={styles.field}>
                     <Label className={styles.label}>Full Name</Label>
-                    <Input placeholder="Your name" />
+                    <Input
+                      placeholder="Your name"
+                      value={signupName}
+                      onChange={(e) => setSignupName(e.target.value)}
+                    />
                   </div>
                   <div className={styles.field}>
                     <Label className={styles.label}>Email</Label>
-                    <Input type="email" placeholder="you@email.com" />
+                    <Input
+                      type="email"
+                      placeholder="you@email.com"
+                      value={signupEmail}
+                      onChange={(e) => setSignupEmail(e.target.value)}
+                    />
                   </div>
                   <div className={styles.field}>
                     <Label className={styles.label}>Password</Label>
@@ -179,8 +208,16 @@ export default function LoginModal({ open, onOpenChange }) {
                     Your account has been created successfully.
                   </p>
                   <div className={styles.successActions}>
-                    <Button render={<Link href="/review" />} onClick={() => onOpenChange(false)}>
-                      Write First Review
+                    <Button
+                      onClick={() => {
+                        login({
+                          email: signupEmail || "resident@email.com",
+                          name: signupName || "Resident",
+                        });
+                        onOpenChange(false);
+                      }}
+                    >
+                      Go to Profile
                     </Button>
                     <Button variant="outline" render={<Link href="/explore" />} onClick={() => onOpenChange(false)}>
                       Explore Areas
