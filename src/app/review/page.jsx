@@ -1,3 +1,5 @@
+import { Suspense } from "react";
+
 import AnonymousReviewForm from "@/components/forms/AnonymousReviewForm";
 
 import styles from "./page.module.scss";
@@ -16,7 +18,9 @@ export default function ReviewPage() {
           Help others make informed decisions about where to live.
         </p>
       </div>
-      <AnonymousReviewForm />
+      <Suspense fallback={null}>
+        <AnonymousReviewForm />
+      </Suspense>
     </div>
   );
 }

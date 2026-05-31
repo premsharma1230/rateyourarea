@@ -54,9 +54,9 @@ export default function Header() {
             <Link href="/" className={styles.logo}>
               <Image
                 src={LOGO_URL}
-                alt="RateYourArea"
-                width={160}
-                height={40}
+                alt="RateYourArea — Real Residents. Real Reviews."
+                width={128}
+                height={128}
                 className={styles.logoImg}
                 priority
               />

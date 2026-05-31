@@ -53,13 +53,9 @@
 }
 
 .logoImg {
-  height: 2.5rem;
+  height: 3.25rem;
   width: auto;
   object-fit: contain;
-
-  :global(.dark) & {
-    filter: brightness(0) invert(1);
-  }
 }
 
 .searchWrap {

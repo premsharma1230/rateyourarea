@@ -14,9 +14,10 @@ export default function Footer() {
             <div className={styles.logoWrap}>
               <Image
                 src={LOGO_URL}
-                alt="RateYourArea"
-                width={160}
-                height={40}
+                alt="RateYourArea — Real Residents. Real Reviews."
+                width={128}
+                height={128}
+                className={styles.logoImg}
               />
             </div>
             <p className={styles.tagline}>

@@ -7,45 +7,80 @@
 
 .hero {
   position: relative;
+  display: flex;
+  align-items: flex-end;
+  min-height: 380px;
+  overflow: hidden;
+
+  @media (min-width: 768px) {
+    min-height: 460px;
+  }
 }
 
 .heroImage {
-  position: relative;
-  height: 320px;
+  position: absolute;
+  inset: 0;
+  z-index: 0;
+}
 
-  @media (min-width: 768px) {
-    height: 400px;
-  }
+.heroImg {
+  object-fit: cover;
+  object-position: center 28%;
+  transform: scale(1.04);
 }
 
 .heroOverlay {
   position: absolute;
   inset: 0;
-  background: linear-gradient(
-    to top,
-    $color-bg-dark 0%,
-    transparent 60%
-  );
+  z-index: 1;
+  pointer-events: none;
+  background:
+    linear-gradient(
+      180deg,
+      rgba(0, 0, 0, 0.5) 0%,
+      rgba(0, 0, 0, 0.12) 38%,
+      transparent 58%
+    ),
+    linear-gradient(
+      to top,
+      $color-bg-dark 0%,
+      rgba($color-bg-dark, 0.94) 20%,
+      rgba($color-bg-dark, 0.6) 45%,
+      rgba($color-bg-dark, 0.2) 68%,
+      transparent 88%
+    );
 
   :global(.light) & {
-    background: linear-gradient(
-      to top,
-      $color-bg-light 0%,
-      transparent 60%
-    );
+    background:
+      linear-gradient(
+        180deg,
+        rgba(15, 23, 42, 0.28) 0%,
+        rgba(15, 23, 42, 0.06) 28%,
+        transparent 52%
+      ),
+      linear-gradient(
+        to top,
+        $color-bg-light 0%,
+        rgba($color-bg-light, 0.97) 10%,
+        rgba($color-bg-light, 0.82) 20%,
+        rgba(30, 41, 59, 0.78) 38%,
+        rgba(30, 41, 59, 0.48) 55%,
+        rgba(30, 41, 59, 0.18) 72%,
+        transparent 92%
+      );
   }
 }
 
 .heroContent {
   position: relative;
+  z-index: 2;
+  width: 100%;
   max-width: 1440px;
-  margin: -8rem auto 0;
-  padding: 0 3rem 2rem;
-  z-index: 1;
+  margin: 0 auto;
+  padding: 2rem 1.25rem 2.5rem;
 
-  @include mobile {
-    padding: 0 1.25rem 2rem;
-    margin-top: -6rem;
+  @media (min-width: 768px) {
+    padding: 2.5rem 3rem 3rem;
   }
 }
 
@@ -64,20 +99,18 @@
       text-decoration: underline;
     }
   }
+
+  span {
+    color: rgba(255, 255, 255, 0.72);
+  }
 }
 
 .title {
   font-size: clamp(2rem, 5vw, 3.5rem);
   font-weight: 900;
   margin-bottom: 0.75rem;
-
-  :global(.light) & {
-    color: $color-on-surface;
-  }
-
-  :global(.dark) & {
-    color: $color-on-surface-dark;
-  }
+  color: #fff;
+  text-shadow: 0 2px 24px rgba(0, 0, 0, 0.45);
 }
 
 .description {
@@ -85,14 +118,8 @@
   max-width: 40rem;
   margin-bottom: 1.5rem;
   line-height: 1.6;
-
-  :global(.light) & {
-    color: $color-on-surface-variant;
-  }
-
-  :global(.dark) & {
-    color: $color-on-surface-variant-dark;
-  }
+  color: rgba(255, 255, 255, 0.88);
+  text-shadow: 0 1px 12px rgba(0, 0, 0, 0.35);
 }
 
 .meta {
@@ -106,10 +133,7 @@
 .reviews {
   font-weight: 600;
   font-size: 0.875rem;
-
-  :global(.dark) & {
-    color: $color-on-surface-variant-dark;
-  }
+  color: rgba(255, 255, 255, 0.78);
 }
 
 .rera {
@@ -119,6 +143,12 @@
   color: $color-error;
   font-size: 0.875rem;
   font-weight: 600;
+}
+
+.communityTag {
+  font-size: 0.875rem;
+  font-weight: 700;
+  color: $color-primary;
 }
 
 .tags {
@@ -132,41 +162,97 @@
   border-radius: $radius-full;
   font-size: 0.75rem;
   font-weight: 700;
-  background: rgba($color-primary, 0.15);
+  background: rgba($color-primary, 0.22);
   color: $color-primary;
-  border: 1px solid rgba($color-primary, 0.2);
+  border: 1px solid rgba($color-primary, 0.35);
+  backdrop-filter: blur(4px);
 }
 
-.body {
+.content {
   max-width: 1440px;
   margin: 0 auto;
   padding: 2rem 3rem 5rem;
+
+  :global(.light) & {
+    background: $color-bg-light;
+  }
 
   @include mobile {
     padding: 2rem 1.25rem 4rem;
   }
 }
 
-.sectionTitle {
-  font-size: 1.5rem;
-  font-weight: 800;
-  margin-bottom: 1.5rem;
+.dashboard {
+  display: grid;
+  gap: 1.5rem;
+
+  @media (min-width: 1100px) {
+    grid-template-columns: minmax(0, 1.7fr) minmax(280px, 0.9fr);
+    align-items: start;
+  }
 }
 
-.ratingsGrid {
+.reportCard {
+  padding: 2rem;
+  border-radius: $radius-2xl;
+
+  :global(.light) & {
+    @include neo-card;
+  }
+
+  :global(.dark) & {
+    @include neo-card-dark;
+  }
+}
+
+.reportHeader {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 1rem;
+  margin-bottom: 1.5rem;
+  flex-wrap: wrap;
+}
+
+.reportTitle {
+  font-size: 1.5rem;
+  font-weight: 800;
+
+  :global(.light) & {
+    color: $color-on-surface;
+  }
+
+  :global(.dark) & {
+    color: $color-on-surface-dark;
+  }
+}
+
+.updatedAt {
+  font-size: 0.8125rem;
+  font-weight: 600;
+
+  :global(.light) & {
+    color: $color-on-surface-variant;
+  }
+
+  :global(.dark) & {
+    color: $color-on-surface-variant-dark;
+  }
+}
+
+.metricsGrid {
   display: grid;
   gap: 1rem;
 
   @media (min-width: 768px) {
-    grid-template-columns: repeat(2, 1fr);
+    grid-template-columns: repeat(2, minmax(0, 1fr));
   }
 }
 
-.ratingItem {
-  display: grid;
-  grid-template-columns: auto 1fr auto auto;
-  align-items: center;
-  gap: 0.75rem;
+.metricItem {
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
   padding: 1rem;
   border-radius: $radius-lg;
 
@@ -179,82 +265,67 @@
   }
 }
 
-.ratingIcon {
-  width: 1.25rem;
-  height: 1.25rem;
-  color: $color-primary;
+.metricTop {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 1rem;
 }
 
-.ratingName {
+.metricLabel {
   font-size: 0.875rem;
   font-weight: 600;
-}
-
-.ratingBar {
-  height: 6px;
-  background: rgba($color-outline-variant, 0.3);
-  border-radius: $radius-full;
-  overflow: hidden;
-}
-
-.ratingFill {
-  height: 100%;
-  background: $color-primary;
-  border-radius: $radius-full;
-}
-
-.ratingValue {
-  font-weight: 800;
-  font-size: 0.875rem;
-  min-width: 2rem;
-  text-align: right;
-}
-
-.ratingsSection {
-  margin-bottom: 3rem;
-}
-
-.twoCol {
-  display: grid;
-  gap: 2rem;
-
-  @media (min-width: 1024px) {
-    grid-template-columns: 2fr 1fr;
-  }
-}
-
-.prosCons {
-  padding: 2rem;
-  border-radius: $radius-2xl;
 
   :global(.light) & {
-    @include neo-card;
+    color: $color-on-surface;
   }
 
   :global(.dark) & {
-    @include neo-card-dark;
-  }
-
-  ul {
-    margin: 0 0 1.5rem;
-    padding-left: 1.25rem;
-    line-height: 1.8;
+    color: $color-on-surface-dark;
   }
 }
 
-.prosTitle {
-  color: #22c55e;
+.metricValue {
+  font-size: 0.875rem;
   font-weight: 800;
-  margin-bottom: 0.5rem;
+  color: $color-primary;
 }
 
-.consTitle {
-  color: $color-error;
-  font-weight: 800;
-  margin-bottom: 0.5rem;
+.metricMax {
+  font-size: 0.75rem;
+  font-weight: 600;
+  opacity: 0.75;
 }
 
-.cta {
+.metricBar {
+  height: 6px;
+  border-radius: $radius-full;
+  overflow: hidden;
+  background: rgba($color-outline-variant, 0.3);
+}
+
+.metricFill {
+  height: 100%;
+  border-radius: $radius-full;
+  transition: width 0.4s ease;
+}
+
+.toneGood,
+.toneMid {
+  background: $color-primary;
+}
+
+.toneLow {
+  background: $color-error;
+}
+
+.sidebar {
+  display: flex;
+  flex-direction: column;
+  gap: 1rem;
+}
+
+.ratingCard {
   padding: 2rem;
   border-radius: $radius-2xl;
   text-align: center;
@@ -269,39 +340,148 @@
     @include neo-primary-dark;
     color: $color-on-primary;
   }
+}
+
+.ratingLabel {
+  font-size: 0.75rem;
+  font-weight: 800;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  opacity: 0.9;
+  margin-bottom: 0.75rem;
+}
+
+.ratingValueLarge {
+  font-size: 3.5rem;
+  font-weight: 900;
+  line-height: 1;
+  margin-bottom: 0.75rem;
+}
+
+.ratingBadgeWrap {
+  display: flex;
+  justify-content: center;
+  margin-bottom: 0.5rem;
+}
+
+.ratingMeta {
+  font-size: 0.8125rem;
+  line-height: 1.6;
+  opacity: 0.9;
+}
+
+.reviewPrompt {
+  padding: 2rem;
+  border-radius: $radius-2xl;
+  text-align: center;
+
+  :global(.light) & {
+    @include neo-card;
+  }
+
+  :global(.dark) & {
+    @include neo-card-dark;
+  }
 
   h3 {
     font-size: 1.25rem;
     font-weight: 800;
     margin-bottom: 0.5rem;
+
+    :global(.light) & {
+      color: $color-on-surface;
+    }
+
+    :global(.dark) & {
+      color: $color-on-surface-dark;
+    }
   }
 
   p {
-    margin-bottom: 1.5rem;
     font-size: 0.875rem;
-    opacity: 0.9;
+    line-height: 1.6;
+    margin-bottom: 1.5rem;
+
+    :global(.light) & {
+      color: $color-on-surface-variant;
+    }
+
+    :global(.dark) & {
+      color: $color-on-surface-variant-dark;
+    }
   }
 }
 
-.ctaBtn {
-  display: inline-block;
-  padding: 0.75rem 1.5rem;
+.reviewBtn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.5rem;
+  width: 100%;
+  padding: 0.875rem 1rem;
   border-radius: $radius-full;
   font-weight: 800;
   text-decoration: none;
-  transition: transform 0.2s;
+  transition: transform 0.2s ease;
 
   :global(.light) & {
-    background: white;
-    color: $color-blue-deep;
+    @include neo-primary;
+    color: $color-on-primary;
   }
 
   :global(.dark) & {
-    background: $color-primary;
+    @include neo-primary-dark;
     color: $color-on-primary;
   }
 
   &:hover {
-    transform: scale(1.05);
+    transform: scale(1.02);
+  }
+}
+
+.mapCard {
+  position: relative;
+  overflow: hidden;
+  border-radius: $radius-2xl;
+
+  :global(.light) & {
+    @include neo-card;
+  }
+
+  :global(.dark) & {
+    @include neo-card-dark;
+  }
+}
+
+.mapImageWrap {
+  position: relative;
+  height: 180px;
+}
+
+.mapImage {
+  object-fit: cover;
+}
+
+.mapBtn {
+  position: absolute;
+  left: 1rem;
+  bottom: 1rem;
+  display: inline-flex;
+  align-items: center;
+  gap: 0.375rem;
+  padding: 0.625rem 0.875rem;
+  border-radius: $radius-full;
+  font-size: 0.8125rem;
+  font-weight: 800;
+  text-decoration: none;
+
+  :global(.light) & {
+    @include neo-outset-sm;
+    color: $color-blue-deep;
+  }
+
+  :global(.dark) & {
+    @include neo-outset-sm-dark;
+    color: $color-primary;
   }
 }

@@ -44,10 +44,13 @@
 }
 
 .logoWrap {
-  :global(.dark) & {
-    filter: brightness(0) invert(1);
-    opacity: 0.9;
-  }
+  display: inline-flex;
+}
+
+.logoImg {
+  height: 4.5rem;
+  width: auto;
+  object-fit: contain;
 }
 
 .tagline {

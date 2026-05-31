@@ -1,7 +1,8 @@
 "use client";
 
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import Link from "next/link";
+import { useSearchParams } from "next/navigation";
 import { motion, AnimatePresence } from "framer-motion";
 import { Star, CheckCircle } from "lucide-react";
 
@@ -63,7 +64,9 @@ function StarRating({ value, onChange }) {
 }
 
 export default function AnonymousReviewForm() {
-  const { submitReview } = useCommunityData();
+  const searchParams = useSearchParams();
+  const { submitReview, getAreaBySlug, ready } = useCommunityData();
+  const preselectedSlug = searchParams.get("area");
   const [step, setStep] = useState(1);
   const [submittedReview, setSubmittedReview] = useState(null);
   const [submittedArea, setSubmittedArea] = useState(null);
@@ -84,6 +87,21 @@ export default function AnonymousReviewForm() {
     issues: [],
     recommend: null,
   });
+
+  useEffect(() => {
+    if (!ready || !preselectedSlug) return;
+
+    const area = getAreaBySlug(preselectedSlug);
+    if (!area) return;
+
+    setForm((f) => ({ ...f, area: area.name }));
+    setAreaSelection({
+      mode: "existing",
+      area,
+      isNew: false,
+      newAreaMeta: null,
+    });
+  }, [ready, preselectedSlug, getAreaBySlug]);
 
   const updateRating = (key, val) => {
     setForm((f) => ({

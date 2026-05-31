@@ -1,6 +1,6 @@
 "use client";
 
-import { useMemo, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 import { MapPin, Plus } from "lucide-react";
 
 import { Input } from "@/components/ui/input";
@@ -30,6 +30,18 @@ export default function AreaPicker({ value, onChange, onAreaSelect }) {
   const [newType, setNewType] = useState("society");
   const [newSector, setNewSector] = useState("");
   const [open, setOpen] = useState(false);
+
+  useEffect(() => {
+    if (value !== undefined) {
+      setQuery(value);
+      if (value.trim()) {
+        const match = allAreas.find(
+          (a) => a.name.toLowerCase() === value.trim().toLowerCase()
+        );
+        if (match) setIsNew(false);
+      }
+    }
+  }, [value, allAreas]);
 
   const suggestions = useMemo(() => {
     const q = query.trim().toLowerCase();
