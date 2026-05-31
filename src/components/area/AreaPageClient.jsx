@@ -7,7 +7,9 @@ import { AlertTriangle, MapPin, MessageSquarePlus } from "lucide-react";
 
 import AreaReviews from "@/components/area/AreaReviews";
 import { useCommunityData } from "@/components/providers/CommunityDataProvider";
+import AreaMap from "@/components/shared/AreaMap";
 import RatingBadge from "@/components/shared/RatingBadge";
+import { buildGoogleMapsUrl } from "@/lib/osm-geocoding";
 import {
   RATING_LABELS,
   computeAggregateRatings,
@@ -44,7 +46,7 @@ export default function AreaPageClient({ slug, staticArea }) {
       : area.overallRating;
 
   const aggregateRatings = computeAggregateRatings(area, reviews);
-  const mapQuery = encodeURIComponent(`${area.name}, ${area.city}`);
+  const mapsUrl = buildGoogleMapsUrl(area);
 
   return (
     <div className={styles.page}>
@@ -154,22 +156,16 @@ export default function AreaPageClient({ slug, staticArea }) {
 
             <div className={styles.mapCard}>
               <div className={styles.mapImageWrap}>
-                <Image
-                  src={area.image}
-                  alt={`Map preview for ${area.name}`}
-                  fill
-                  className={styles.mapImage}
-                  sizes="400px"
-                />
+                <AreaMap area={area} />
               </div>
               <a
-                href={`https://www.google.com/maps/search/?api=1&query=${mapQuery}`}
+                href={mapsUrl}
                 target="_blank"
                 rel="noopener noreferrer"
                 className={styles.mapBtn}
               >
                 <MapPin className="size-4" aria-hidden />
-                View on Map
+                Open in Google Maps
               </a>
             </div>
           </aside>

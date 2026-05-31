@@ -69,6 +69,7 @@ export function CommunityDataProvider({ children }) {
           type: newAreaMeta.type,
           sector: newAreaMeta.sector || null,
           googlePlaceId: newAreaMeta.googlePlaceId || null,
+          osmPlaceId: newAreaMeta.osmPlaceId || null,
           address: newAreaMeta.address || null,
           lat: newAreaMeta.lat ?? null,
           lng: newAreaMeta.lng ?? null,

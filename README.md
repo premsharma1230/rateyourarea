@@ -1,22 +1,30 @@
-# RateYourArea
+# RateYourArea — free data sources (no API key required)
 
-Anonymous society and area reviews for Gurugram.
+## Already integrated
 
-## Google Places (area search)
+| Source | Used for | Cost |
+|--------|----------|------|
+| **Manual seed** | Sectors, societies (`src/data/`) | Free |
+| **OpenStreetMap Nominatim** | Area search in review form | Free |
+| **Leaflet + OSM tiles** | Area detail map | Free |
+| **User-added areas** | Missing societies/PG | Free |
 
-1. Create a key in [Google Cloud Console](https://console.cloud.google.com/google/maps-apis)
-2. Enable **Places API** (and **Places API (New)** if prompted)
-3. Copy `.env.example` to `.env.local` and set:
+## Optional: RERA Haryana (manual import)
+
+RERA has **no public API**. To add registered projects:
+
+1. Go to [haryanarera.gov.in](https://haryanarera.gov.in/assistancecontrol/project_search_public/1)
+2. District: **GURUGRAM** → Search
+3. Export/copy project names + addresses
+4. Add to `src/data/gurugram-societies.js` under `KNOWN_SOCIETIES_BY_SECTOR`
+
+Future: one-time CSV import script can merge RERA exports into seed data.
+
+## Dev
 
 ```bash
-GOOGLE_MAPS_API_KEY=your_key_here
+npm install
+npm run dev
 ```
 
-4. On Vercel: **Project → Settings → Environment Variables** → add `GOOGLE_MAPS_API_KEY`
-
-The review form's area picker merges:
-- local seed + community-added areas
-- Google Maps autocomplete (Gurugram-biased)
-- manual "Add as new area" fallback
-
-Without an API key, local search and manual add still work.
+No `.env` required for maps or geocoding.

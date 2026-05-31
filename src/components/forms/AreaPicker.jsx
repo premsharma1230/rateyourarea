@@ -13,7 +13,7 @@ import {
   SelectValue,
 } from "@/components/ui/select";
 import { useCommunityData } from "@/components/providers/CommunityDataProvider";
-import { buildNewAreaMetaFromGoogle, normalizePlaceLabel } from "@/lib/google-places";
+import { buildNewAreaMetaFromOsm, normalizePlaceLabel } from "@/lib/osm-geocoding";
 import styles from "./AreaPicker.module.scss";
 
 const AREA_TYPES = [
@@ -31,9 +31,8 @@ export default function AreaPicker({ value, onChange, onAreaSelect }) {
   const [newType, setNewType] = useState("society");
   const [newSector, setNewSector] = useState("");
   const [open, setOpen] = useState(false);
-  const [googleSuggestions, setGoogleSuggestions] = useState([]);
-  const [googleLoading, setGoogleLoading] = useState(false);
-  const [googleEnabled, setGoogleEnabled] = useState(true);
+  const [osmSuggestions, setOsmSuggestions] = useState([]);
+  const [osmLoading, setOsmLoading] = useState(false);
 
   useEffect(() => {
     if (value !== undefined) {
@@ -49,40 +48,33 @@ export default function AreaPicker({ value, onChange, onAreaSelect }) {
 
   useEffect(() => {
     const q = query.trim();
-    if (!googleEnabled || q.length < 2) {
-      setGoogleSuggestions([]);
-      setGoogleLoading(false);
+    if (q.length < 2) {
+      setOsmSuggestions([]);
+      setOsmLoading(false);
       return undefined;
     }
 
     const timer = setTimeout(async () => {
-      setGoogleLoading(true);
+      setOsmLoading(true);
       try {
         const response = await fetch(
-          `/api/places/autocomplete?input=${encodeURIComponent(q)}`
+          `/api/geocode/search?input=${encodeURIComponent(q)}`
         );
         const data = await response.json();
-
-        if (response.status === 503) {
-          setGoogleEnabled(false);
-          setGoogleSuggestions([]);
-          return;
-        }
-
         if (response.ok) {
-          setGoogleSuggestions(data.predictions || []);
+          setOsmSuggestions(data.predictions || []);
         } else {
-          setGoogleSuggestions([]);
+          setOsmSuggestions([]);
         }
       } catch {
-        setGoogleSuggestions([]);
+        setOsmSuggestions([]);
       } finally {
-        setGoogleLoading(false);
+        setOsmLoading(false);
       }
-    }, 350);
+    }, 400);
 
     return () => clearTimeout(timer);
-  }, [query, googleEnabled]);
+  }, [query]);
 
   const localSuggestions = useMemo(() => {
     const q = query.trim().toLowerCase();
@@ -108,17 +100,17 @@ export default function AreaPicker({ value, onChange, onAreaSelect }) {
       items.push({ kind: "local", area, key: area.slug });
     }
 
-    for (const prediction of googleSuggestions) {
+    for (const prediction of osmSuggestions) {
       const nameKey = normalizePlaceLabel(prediction.mainText);
       const descKey = normalizePlaceLabel(prediction.description);
       if (seen.has(nameKey) || seen.has(descKey)) continue;
       seen.add(nameKey);
       seen.add(descKey);
-      items.push({ kind: "google", prediction, key: prediction.placeId });
+      items.push({ kind: "osm", prediction, key: prediction.placeId });
     }
 
     return items.slice(0, 10);
-  }, [localSuggestions, googleSuggestions]);
+  }, [localSuggestions, osmSuggestions]);
 
   const exactMatch = useMemo(
     () =>
@@ -155,13 +147,15 @@ export default function AreaPicker({ value, onChange, onAreaSelect }) {
     notifyNewArea({ type: newType, sector: newSector });
   };
 
-  const handleSelectGoogle = async (prediction) => {
+  const handleSelectOsm = async (prediction) => {
     const label = prediction.mainText;
     setQuery(label);
     setOpen(false);
     onChange(label);
 
-    const localByPlace = allAreas.find((a) => a.googlePlaceId === prediction.placeId);
+    const localByPlace = allAreas.find(
+      (a) => a.osmPlaceId === prediction.placeId || a.googlePlaceId === prediction.placeId
+    );
     if (localByPlace) {
       handleSelectExisting(localByPlace);
       return;
@@ -178,16 +172,16 @@ export default function AreaPicker({ value, onChange, onAreaSelect }) {
     let details = null;
     try {
       const response = await fetch(
-        `/api/places/details?placeId=${encodeURIComponent(prediction.placeId)}`
+        `/api/geocode/details?placeId=${encodeURIComponent(prediction.placeId)}`
       );
       if (response.ok) {
         details = await response.json();
       }
     } catch {
-      // Fall back to autocomplete metadata only.
+      // Fall back to search metadata only.
     }
 
-    const meta = buildNewAreaMetaFromGoogle(prediction, details);
+    const meta = buildNewAreaMetaFromOsm(prediction, details);
     setIsNew(true);
     setNewType(meta.type);
     setNewSector(meta.sector || "");
@@ -244,7 +238,7 @@ export default function AreaPicker({ value, onChange, onAreaSelect }) {
 
   const showDropdown =
     open &&
-    (mergedSuggestions.length > 0 || showAddNew || googleLoading);
+    (mergedSuggestions.length > 0 || showAddNew || osmLoading);
 
   return (
     <div className={styles.wrapper}>
@@ -283,24 +277,24 @@ export default function AreaPicker({ value, onChange, onAreaSelect }) {
               <li key={item.key}>
                 <button
                   type="button"
-                  className={`${styles.option} ${styles.googleOption}`}
-                  onMouseDown={() => handleSelectGoogle(item.prediction)}
+                  className={`${styles.option} ${styles.osmOption}`}
+                  onMouseDown={() => handleSelectOsm(item.prediction)}
                 >
                   <span className={styles.optionName}>{item.prediction.mainText}</span>
                   <span className={styles.optionMeta}>
                     {item.prediction.secondaryText || "Gurugram"}
                     {" • "}
-                    <span className={styles.googleBadge}>Google Maps</span>
+                    <span className={styles.osmBadge}>OpenStreetMap</span>
                   </span>
                 </button>
               </li>
             )
           )}
 
-          {googleLoading && mergedSuggestions.length === 0 && (
+          {osmLoading && mergedSuggestions.length === 0 && (
             <li className={styles.loadingRow}>
               <Loader2 className={`size-4 ${styles.spinner}`} aria-hidden />
-              Searching Google Maps…
+              Searching OpenStreetMap…
             </li>
           )}
 

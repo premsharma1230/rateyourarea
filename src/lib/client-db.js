@@ -23,6 +23,7 @@ export function createCustomArea({
   sector = null,
   city = "Gurugram",
   googlePlaceId = null,
+  osmPlaceId = null,
   address = null,
   lat = null,
   lng = null,
@@ -61,15 +62,20 @@ export function createCustomArea({
       builderTrust: 0,
     },
     reraComplaints: 0,
-    description: googlePlaceId
-      ? `Listed via Google Maps in ${city}.`
-      : `Community-added ${type} in ${city}.`,
+    description:
+      osmPlaceId || googlePlaceId
+        ? `Listed via OpenStreetMap in ${city}.`
+        : `Community-added ${type} in ${city}.`,
     image: DEFAULT_IMAGE,
-    tags: googlePlaceId ? ["Google Maps", "Community added"] : ["Community added"],
+    tags:
+      osmPlaceId || googlePlaceId
+        ? ["OpenStreetMap", "Community added"]
+        : ["Community added"],
     pros: [],
     cons: [],
     isCustom: true,
     googlePlaceId,
+    osmPlaceId,
     address,
     lat,
     lng,
