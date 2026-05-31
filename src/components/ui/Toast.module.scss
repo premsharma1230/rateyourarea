@@ -1,0 +1,143 @@
+@use "@/styles/variables" as *;
+@use "@/styles/mixins" as *;
+
+$toast-success: #22c55e;
+$toast-success-muted: rgba($toast-success, 0.12);
+$toast-error-muted: rgba($color-error, 0.12);
+
+.viewport {
+  position: fixed;
+  top: 5.5rem;
+  right: 1.25rem;
+  z-index: 200;
+  pointer-events: none;
+
+  @media (max-width: 768px) {
+    top: 4.5rem;
+    right: 1rem;
+    left: 1rem;
+  }
+}
+
+.toast {
+  pointer-events: auto;
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+  padding: 0.875rem 1rem;
+  border-radius: $radius-xl;
+  min-width: 16rem;
+  max-width: 22rem;
+  animation: slideIn 0.3s ease;
+
+  :global(.dark) & {
+    @include glass-panel;
+    box-shadow: 0 12px 40px rgba(0, 0, 0, 0.45);
+  }
+
+  :global(.light) & {
+    @include neo-card;
+    box-shadow: 0 8px 24px rgba(0, 0, 0, 0.12);
+  }
+}
+
+.success {
+  :global(.dark) & {
+    border: 1px solid rgba($toast-success, 0.45);
+    background: linear-gradient(
+      135deg,
+      $toast-success-muted 0%,
+      rgba($color-surface-container, 0.92) 100%
+    );
+  }
+
+  :global(.light) & {
+    border: 1px solid rgba($toast-success, 0.35);
+    background: linear-gradient(
+      135deg,
+      $toast-success-muted 0%,
+      $color-bg-light 100%
+    );
+  }
+
+  .icon {
+    color: $toast-success;
+    flex-shrink: 0;
+    width: 1.25rem;
+    height: 1.25rem;
+  }
+}
+
+.error {
+  :global(.dark) & {
+    border: 1px solid rgba($color-error, 0.5);
+    background: linear-gradient(
+      135deg,
+      $toast-error-muted 0%,
+      rgba($color-surface-container, 0.92) 100%
+    );
+  }
+
+  :global(.light) & {
+    border: 1px solid rgba($color-error, 0.35);
+    background: linear-gradient(
+      135deg,
+      $toast-error-muted 0%,
+      $color-bg-light 100%
+    );
+  }
+
+  .icon {
+    color: $color-error;
+    flex-shrink: 0;
+    width: 1.25rem;
+    height: 1.25rem;
+  }
+}
+
+.message {
+  flex: 1;
+  font-size: 0.875rem;
+  font-weight: 600;
+
+  :global(.dark) & {
+    color: $color-on-surface-dark;
+  }
+
+  :global(.light) & {
+    color: $color-on-surface;
+  }
+}
+
+.close {
+  flex-shrink: 0;
+  padding: 0.25rem;
+  border: none;
+  background: transparent;
+  cursor: pointer;
+  opacity: 0.6;
+  transition: opacity 0.2s;
+
+  &:hover {
+    opacity: 1;
+  }
+
+  :global(.dark) & {
+    color: $color-on-surface-variant-dark;
+  }
+
+  :global(.light) & {
+    color: $color-on-surface-variant;
+  }
+}
+
+@keyframes slideIn {
+  from {
+    opacity: 0;
+    transform: translateX(1rem);
+  }
+  to {
+    opacity: 1;
+    transform: translateX(0);
+  }
+}

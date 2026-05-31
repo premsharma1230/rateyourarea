@@ -1,0 +1,34 @@
+@use "@/styles/variables" as *;
+
+.pagination {
+  margin-top: 2.5rem;
+}
+
+.empty {
+  text-align: center;
+  padding: 2rem 1rem;
+  font-weight: 600;
+
+  :global(.light) & {
+    color: $color-on-surface-variant;
+  }
+
+  :global(.dark) & {
+    color: $color-on-surface-variant-dark;
+  }
+}
+
+.pageMeta {
+  margin-top: 1rem;
+  text-align: center;
+  font-size: 0.875rem;
+  font-weight: 600;
+
+  :global(.light) & {
+    color: $color-on-surface-variant;
+  }
+
+  :global(.dark) & {
+    color: $color-on-surface-variant-dark;
+  }
+}

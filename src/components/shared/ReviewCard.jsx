@@ -49,7 +49,7 @@ const iconMap = {
 };
 
 export default function ReviewCard({ review, detailed = false }) {
-  const { user } = useAuth();
+  const { user, isLoggedIn } = useAuth();
   const anonymous = isReviewAnonymous(review);
   const displayName = getReviewDisplayName(review, user);
   const authorName = getReviewAuthorName(review, user);
@@ -60,7 +60,9 @@ export default function ReviewCard({ review, detailed = false }) {
 
   return (
     <article className={`${styles.card} ${detailed ? styles.detailed : ""}`}>
-      {review.isUserReview && <span className={styles.liveBadge}>Your review</span>}
+      {isLoggedIn && review.isUserReview && (
+        <span className={styles.liveBadge}>Your review</span>
+      )}
 
       <div className={styles.top}>
         <div className={styles.author}>

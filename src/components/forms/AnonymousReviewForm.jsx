@@ -2,15 +2,15 @@
 
 import { useEffect, useState } from "react";
 import Link from "next/link";
-import { useSearchParams } from "next/navigation";
+import { useRouter, useSearchParams } from "next/navigation";
 import { motion, AnimatePresence } from "framer-motion";
-import { Star, CheckCircle } from "lucide-react";
+import { Star } from "lucide-react";
 
 import AreaPicker from "@/components/forms/AreaPicker";
 import ReviewTargetFields from "@/components/forms/ReviewTargetFields";
-import ReviewCard from "@/components/shared/ReviewCard";
 import { useAuth } from "@/components/providers/AuthProvider";
 import { useCommunityData } from "@/components/providers/CommunityDataProvider";
+import { useToast } from "@/components/ui/ToastProvider";
 import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
 import { Button } from "@/components/ui/button";
@@ -71,15 +71,15 @@ function StarRating({ value, onChange }) {
 }
 
 export default function AnonymousReviewForm() {
+  const router = useRouter();
   const searchParams = useSearchParams();
   const { isLoggedIn, user } = useAuth();
   const { submitReview, getAreaBySlug, ready } = useCommunityData();
+  const { showToast } = useToast();
   const preselectedSlug = searchParams.get("area");
   const [step, setStep] = useState(1);
   const [submitting, setSubmitting] = useState(false);
   const [submitError, setSubmitError] = useState("");
-  const [submittedReview, setSubmittedReview] = useState(null);
-  const [submittedArea, setSubmittedArea] = useState(null);
   const [areaSelection, setAreaSelection] = useState({
     mode: "existing",
     area: null,
@@ -173,50 +173,23 @@ export default function AnonymousReviewForm() {
     setSubmitError("");
 
     try {
-      const { review, area } = await submitReview({
+      await submitReview({
         form,
         selectedArea: areaSelection.area,
         isNewArea: areaSelection.isNew,
         newAreaMeta: areaSelection.newAreaMeta,
       });
 
-      setSubmittedReview(review);
-      setSubmittedArea(area);
+      showToast("Review submitted successfully");
+      router.push("/");
     } catch {
-      setSubmitError("Something went wrong. Please try again.");
+      const message = "Something went wrong. Please try again.";
+      setSubmitError(message);
+      showToast(message, "error");
     } finally {
       setSubmitting(false);
     }
   };
-
-  if (submittedReview) {
-    return (
-      <motion.div
-        className={styles.success}
-        initial={{ opacity: 0, scale: 0.9 }}
-        animate={{ opacity: 1, scale: 1 }}
-      >
-        <CheckCircle className={`${styles.successIcon} text-primary mx-auto`} />
-        <h2 className="text-2xl font-bold mb-2">Review Submitted!</h2>
-        <p className="text-muted-foreground mb-6">
-          {isLoggedIn
-            ? "Thank you for helping the community. Your review is live below."
-            : "Thank you for helping the community. Your anonymous review is live below."}
-        </p>
-        <div className={styles.submittedReview}>
-          <ReviewCard review={submittedReview} detailed />
-        </div>
-        <div className={styles.successActions}>
-          <Link href={`/area/${submittedArea.slug}`} className={styles.viewAreaBtn}>
-            View {submittedArea.name}
-          </Link>
-          <Link href="/explore" className={styles.exploreBtn}>
-            Explore more areas
-          </Link>
-        </div>
-      </motion.div>
-    );
-  }
 
   return (
     <div className={styles.wrapper}>

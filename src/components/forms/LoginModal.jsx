@@ -16,6 +16,7 @@ import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
 import { Label } from "@/components/ui/label";
 import { useAuth } from "@/components/providers/AuthProvider";
+import { useToast } from "@/components/ui/ToastProvider";
 import { signIn, signInWithGoogle, signUp } from "@/backend/api/auth";
 import {
   formatResidentSince,
@@ -62,6 +63,7 @@ export default function LoginModal({ open, onOpenChange }) {
   const [signupMessage, setSignupMessage] = useState("");
   const [loading, setLoading] = useState(false);
   const { login } = useAuth();
+  const { showToast } = useToast();
 
   const resetSignup = () => {
     setSignupStep(1);
@@ -129,7 +131,9 @@ export default function LoginModal({ open, onOpenChange }) {
     setLoading(false);
 
     if (error) {
-      setAuthError(error.message || "Sign up failed. Try again.");
+      const message = error.message || "Sign up failed. Try again.";
+      setAuthError(message);
+      showToast(message, "error");
       return;
     }
 
@@ -137,6 +141,7 @@ export default function LoginModal({ open, onOpenChange }) {
 
     if (session) {
       await login();
+      showToast("Account created. Welcome!");
       setSignupMessage("Account created. Welcome!");
       setTimeout(() => {
         onOpenChange(false);
@@ -146,9 +151,10 @@ export default function LoginModal({ open, onOpenChange }) {
     }
 
     setSignupAwaitingEmailConfirm(true);
-    setSignupMessage(
-      "Account created. Check your email to confirm, then log in."
-    );
+    const confirmMessage =
+      "Account created. Check your email to confirm, then log in.";
+    setSignupMessage(confirmMessage);
+    showToast(confirmMessage);
   };
 
   const handleLogin = async () => {
@@ -162,7 +168,9 @@ export default function LoginModal({ open, onOpenChange }) {
     setLoading(false);
 
     if (error) {
-      setAuthError(error.message || "Login failed. Try again.");
+      const message = error.message || "Login failed. Try again.";
+      setAuthError(message);
+      showToast(message, "error");
       return;
     }
 
@@ -174,7 +182,9 @@ export default function LoginModal({ open, onOpenChange }) {
     setAuthError("");
     const { error } = await signInWithGoogle();
     if (error) {
-      setAuthError(error.message || "Google sign-in failed.");
+      const message = error.message || "Google sign-in failed.";
+      setAuthError(message);
+      showToast(message, "error");
     }
   };
 

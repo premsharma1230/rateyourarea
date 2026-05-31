@@ -9,6 +9,7 @@ import {
 } from "react";
 
 import { getUser, onAuthChange, signOut } from "@/backend/api/auth";
+import { useToast } from "@/components/ui/ToastProvider";
 
 const AuthContext = createContext(null);
 
@@ -32,6 +33,7 @@ function mapSupabaseUser(supabaseUser) {
 }
 
 export function AuthProvider({ children }) {
+  const { showToast } = useToast();
   const [user, setUser] = useState(null);
   const [ready, setReady] = useState(false);
 
@@ -48,16 +50,19 @@ export function AuthProvider({ children }) {
       if (mounted) setReady(true);
     })();
 
-    const { data: listener } = onAuthChange((supabaseUser) => {
+    const { data: listener } = onAuthChange((event, supabaseUser) => {
       setUser(mapSupabaseUser(supabaseUser));
       setReady(true);
+      if (event === "SIGNED_IN" && supabaseUser) {
+        showToast("Login successful");
+      }
     });
 
     return () => {
       mounted = false;
       listener?.subscription?.unsubscribe();
     };
-  }, [refresh]);
+  }, [refresh, showToast]);
 
   const login = useCallback(async () => {
     await refresh();

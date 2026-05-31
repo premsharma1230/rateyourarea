@@ -1,0 +1,168 @@
+@use "@/styles/variables" as *;
+@use "@/styles/mixins" as *;
+
+.page {
+  min-height: 100%;
+}
+
+.hero {
+  position: relative;
+  padding: 2.5rem 1.25rem 2rem;
+  border-bottom: 1px solid rgba($color-outline-variant, 0.12);
+
+  :global(.dark) & {
+    background: linear-gradient(
+      180deg,
+      rgba($color-primary, 0.12) 0%,
+      $color-bg-dark 100%
+    );
+  }
+
+  :global(.light) & {
+    background: linear-gradient(
+      180deg,
+      rgba($color-primary, 0.08) 0%,
+      $color-bg-light 100%
+    );
+  }
+
+  @media (min-width: 768px) {
+    padding: 3.5rem 3rem 2.5rem;
+  }
+}
+
+.heroIcon {
+  width: 4rem;
+  height: 4rem;
+  border-radius: $radius-xl;
+  @include flex-center;
+  margin-bottom: 1.25rem;
+
+  :global(.dark) & {
+    @include neo-card-dark;
+  }
+
+  :global(.light) & {
+    @include neo-card;
+  }
+}
+
+.icon {
+  width: 2rem;
+  height: 2rem;
+  color: $color-primary;
+}
+
+.heroContent {
+  max-width: 1440px;
+  margin: 0 auto;
+}
+
+.breadcrumb {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  font-size: 0.75rem;
+  font-weight: 600;
+  margin-bottom: 0.75rem;
+  text-transform: uppercase;
+  letter-spacing: 0.06em;
+
+  a {
+    color: $color-primary;
+    text-decoration: none;
+
+    &:hover {
+      text-decoration: underline;
+    }
+  }
+
+  :global(.dark) & span:last-child {
+    color: $color-on-surface-variant-dark;
+  }
+
+  :global(.light) & span:last-child {
+    color: $color-on-surface-variant;
+  }
+}
+
+.title {
+  font-size: 2rem;
+  font-weight: 800;
+  letter-spacing: -0.02em;
+  margin-bottom: 0.35rem;
+
+  @media (min-width: 768px) {
+    font-size: 2.5rem;
+  }
+
+  :global(.dark) & {
+    color: $color-on-surface-dark;
+  }
+
+  :global(.light) & {
+    color: $color-on-surface;
+  }
+}
+
+.subtitle {
+  font-size: 0.9375rem;
+  font-weight: 500;
+  margin-bottom: 1.25rem;
+
+  :global(.dark) & {
+    color: $color-on-surface-variant-dark;
+  }
+
+  :global(.light) & {
+    color: $color-on-surface-variant;
+  }
+}
+
+.meta {
+  display: flex;
+  align-items: center;
+  gap: 1rem;
+  flex-wrap: wrap;
+  margin-bottom: 1.5rem;
+}
+
+.reviews {
+  font-size: 0.875rem;
+  font-weight: 600;
+
+  :global(.dark) & {
+    color: $color-on-surface-variant-dark;
+  }
+
+  :global(.light) & {
+    color: $color-on-surface-variant;
+  }
+}
+
+.reviewBtn {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.5rem;
+  padding: 0.75rem 1.25rem;
+  border-radius: $radius-xl;
+  font-weight: 700;
+  text-decoration: none;
+  background: $color-primary;
+  color: $color-on-primary;
+  transition: opacity 0.2s;
+
+  &:hover {
+    opacity: 0.9;
+  }
+}
+
+.content {
+  max-width: 1440px;
+  margin: 0 auto;
+  padding: 2rem 1.25rem 4rem;
+
+  @media (min-width: 768px) {
+    padding: 2.5rem 3rem 5rem;
+  }
+}
