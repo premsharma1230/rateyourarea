@@ -1,0 +1,156 @@
+@use "@/styles/variables" as *;
+@use "@/styles/mixins" as *;
+
+.wrapper {
+  display: flex;
+  flex-direction: column;
+  gap: 4rem;
+
+  @media (max-width: 768px) {
+    gap: 3rem;
+  }
+}
+
+.loading {
+  min-height: 8rem;
+}
+
+.section {
+  margin-bottom: 0;
+}
+
+.header {
+  @include flex-between;
+  align-items: flex-end;
+  margin-bottom: 1.5rem;
+  flex-wrap: wrap;
+  gap: 1rem;
+}
+
+.title {
+  font-size: 1.75rem;
+  font-weight: 800;
+  letter-spacing: -0.02em;
+  margin-bottom: 0.35rem;
+
+  @media (min-width: 768px) {
+    font-size: 2rem;
+  }
+
+  :global(.light) & {
+    color: $color-on-surface;
+  }
+
+  :global(.dark) & {
+    color: $color-on-surface-dark;
+  }
+}
+
+.subtitle {
+  font-size: 0.875rem;
+  font-weight: 500;
+
+  :global(.light) & {
+    color: $color-on-surface-variant;
+  }
+
+  :global(.dark) & {
+    color: $color-on-surface-variant-dark;
+  }
+}
+
+.viewAll {
+  display: flex;
+  align-items: center;
+  font-size: 0.875rem;
+  font-weight: 700;
+  text-decoration: none;
+  gap: 0.35rem;
+  transition: gap 0.2s;
+
+  :global(.light) & {
+    color: $color-blue-deep;
+  }
+
+  :global(.dark) & {
+    color: $color-primary;
+  }
+
+  &:hover .arrow {
+    transform: translateX(4px);
+  }
+}
+
+.arrow {
+  width: 1rem;
+  height: 1rem;
+  transition: transform 0.2s;
+}
+
+.carousel {
+  position: relative;
+  padding: 0 2.75rem;
+
+  @media (max-width: 640px) {
+    padding: 0 2.25rem;
+  }
+}
+
+.carouselContent {
+  margin-left: -1rem;
+}
+
+.carouselItem {
+  flex-basis: auto;
+  padding-left: 1rem;
+}
+
+.navBtn,
+.navPrev,
+.navNext {
+  top: 50%;
+  left: auto;
+  right: auto;
+  transform: translateY(-50%);
+  z-index: 2;
+  border-radius: 999px;
+  backdrop-filter: blur(8px);
+  transition: opacity 0.2s, transform 0.2s, box-shadow 0.2s;
+
+  &:disabled {
+    opacity: 0.35;
+    pointer-events: none;
+  }
+
+  :global(.light) & {
+    @include neo-outset-sm;
+    background: rgba($color-bg-light, 0.92);
+    border-color: rgba($color-primary, 0.12);
+    color: $color-blue-deep;
+
+    &:hover:not(:disabled) {
+      @include neo-inset-sm;
+      color: $color-primary;
+    }
+  }
+
+  :global(.dark) & {
+    @include neo-outset-sm-dark;
+    background: rgba($color-bg-dark, 0.88);
+    border-color: rgba($color-primary, 0.2);
+    color: $color-primary;
+
+    &:hover:not(:disabled) {
+      @include neo-inset-sm-dark;
+      box-shadow: 0 0 12px rgba($color-primary, 0.15);
+    }
+  }
+}
+
+.navPrev {
+  left: 0;
+}
+
+.navNext {
+  right: 0;
+}

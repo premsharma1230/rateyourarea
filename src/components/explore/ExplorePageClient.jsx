@@ -5,6 +5,10 @@ import Link from "next/link";
 import { useRouter, useSearchParams } from "next/navigation";
 
 import AreaCard from "@/components/shared/AreaCard";
+import AreaCardSkeleton, {
+  AreaCardSkeletonCount,
+} from "@/components/shared/AreaCardSkeleton";
+import PaginatedList from "@/components/shared/PaginatedList";
 import ExploreFilters from "@/components/explore/ExploreFilters";
 import { useCommunityData } from "@/components/providers/CommunityDataProvider";
 import { filterAreas } from "@/data/areas";
@@ -12,11 +16,12 @@ import listingStyles from "@/app/listing.module.scss";
 import styles from "./ExplorePage.module.scss";
 
 const DEFAULT_CITY = "Gurugram";
+const PAGE_SIZE = 9;
 
 export default function ExplorePageClient() {
   const searchParams = useSearchParams();
   const router = useRouter();
-  const { allAreas } = useCommunityData();
+  const { allAreas, ready } = useCommunityData();
 
   const city = searchParams.get("city") || DEFAULT_CITY;
   const sector = searchParams.get("sector") || "";
@@ -24,10 +29,14 @@ export default function ExplorePageClient() {
   const pg = searchParams.get("pg") || "";
   const type = searchParams.get("type") || "all";
   const query = searchParams.get("q") || "";
+  const rawPage = parseInt(searchParams.get("page") || "1", 10);
+  const page = Number.isFinite(rawPage) && rawPage > 0 ? rawPage : 1;
 
   const updateParams = useCallback(
     (updates) => {
       const params = new URLSearchParams(searchParams.toString());
+      const isPageOnly =
+        Object.keys(updates).length === 1 && Object.hasOwn(updates, "page");
 
       Object.entries(updates).forEach(([key, value]) => {
         if (!value || value === "all") {
@@ -36,6 +45,10 @@ export default function ExplorePageClient() {
           params.set(key, value);
         }
       });
+
+      if (!isPageOnly && !Object.hasOwn(updates, "page")) {
+        params.delete("page");
+      }
 
       const qs = params.toString();
       router.replace(qs ? `/explore?${qs}` : "/explore", { scroll: false });
@@ -96,21 +109,46 @@ export default function ExplorePageClient() {
         onQueryChange={(v) => updateParams({ q: v })}
       />
 
-      <p className={styles.count}>
-        {results.length} {results.length === 1 ? "result" : "results"}
-      </p>
-
-      {results.length === 0 ? (
-        <p className={styles.empty}>
-          No areas match your filters. Try a different sector, society, or search
-          term.
-        </p>
+      {!ready ? (
+        <>
+          <AreaCardSkeletonCount />
+          <div
+            className={listingStyles.grid}
+            aria-busy="true"
+            aria-label="Loading areas"
+          >
+            {Array.from({ length: PAGE_SIZE }, (_, i) => (
+              <AreaCardSkeleton key={i} />
+            ))}
+          </div>
+        </>
       ) : (
-        <div className={listingStyles.grid}>
-          {results.map((area, index) => (
-            <AreaCard key={area.slug} area={area} index={index} />
-          ))}
-        </div>
+        <>
+          <p className={styles.count}>
+            {results.length} {results.length === 1 ? "result" : "results"}
+          </p>
+
+          {results.length === 0 ? (
+            <p className={styles.empty}>
+              No areas match your filters. Try a different sector, society, or
+              search term.
+            </p>
+          ) : (
+            <PaginatedList
+              items={results}
+              pageSize={PAGE_SIZE}
+              page={page}
+              onPageChange={(nextPage) =>
+                updateParams({ page: nextPage === 1 ? "" : String(nextPage) })
+              }
+              className={listingStyles.grid}
+              emptyMessage=""
+              renderItem={(area, index) => (
+                <AreaCard key={area.slug} area={area} index={index} />
+              )}
+            />
+          )}
+        </>
       )}
 
       <p className={listingStyles.footer}>

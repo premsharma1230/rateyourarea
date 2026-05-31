@@ -1,5 +1,5 @@
 import HeroSection from "@/components/home/HeroSection";
-import TrendingAreas from "@/components/home/TrendingAreas";
+import TopRatedSections from "@/components/home/TopRatedSections";
 import CommunityVoice from "@/components/home/CommunityVoice";
 import HowItWorks from "@/components/home/HowItWorks";
 
@@ -10,7 +10,7 @@ export default function HomePage() {
     <div className={styles.page}>
       <HeroSection />
       <div className={styles.sections}>
-        <TrendingAreas />
+        <TopRatedSections />
         <CommunityVoice />
         <HowItWorks />
       </div>

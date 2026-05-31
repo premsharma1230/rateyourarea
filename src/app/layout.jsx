@@ -6,6 +6,7 @@ import MobileBottomNav from "@/components/layout/MobileBottomNav";
 import { ThemeProvider } from "@/components/providers/ThemeProvider";
 import { AuthProvider } from "@/components/providers/AuthProvider";
 import { CommunityDataProvider } from "@/components/providers/CommunityDataProvider";
+import { ToastProvider } from "@/components/ui/ToastProvider";
 import "./globals.css";
 import "@/styles/globals.scss";
 
@@ -32,14 +33,16 @@ export default function RootLayout({ children }) {
         className={`${plusJakarta.variable} ${inter.variable} min-h-screen antialiased transition-colors duration-300`}
       >
         <ThemeProvider>
-          <AuthProvider>
-            <CommunityDataProvider>
-              <Header />
-              <main className="site-main flex-1">{children}</main>
-              <Footer />
-              <MobileBottomNav />
-            </CommunityDataProvider>
-          </AuthProvider>
+          <ToastProvider>
+            <AuthProvider>
+              <CommunityDataProvider>
+                <Header />
+                <main className="site-main flex-1">{children}</main>
+                <Footer />
+                <MobileBottomNav />
+              </CommunityDataProvider>
+            </AuthProvider>
+          </ToastProvider>
         </ThemeProvider>
       </body>
     </html>

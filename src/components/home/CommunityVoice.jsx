@@ -2,16 +2,17 @@
 
 import { useMemo, useState } from "react";
 import { motion, AnimatePresence } from "framer-motion";
-import { ChevronDown } from "lucide-react";
 
 import { useCommunityData } from "@/components/providers/CommunityDataProvider";
+import PaginatedList from "@/components/shared/PaginatedList";
 import ReviewCard from "@/components/shared/ReviewCard";
 import styles from "./CommunityVoice.module.scss";
+
+const PAGE_SIZE = 4;
 
 export default function CommunityVoice() {
   const { allReviews, ready } = useCommunityData();
   const [tab, setTab] = useState("recent");
-  const [visibleCount, setVisibleCount] = useState(4);
 
   const sortedReviews = useMemo(() => {
     if (tab === "highest") {
@@ -19,9 +20,6 @@ export default function CommunityVoice() {
     }
     return allReviews;
   }, [allReviews, tab]);
-
-  const reviews = sortedReviews.slice(0, visibleCount);
-  const hasMore = visibleCount < sortedReviews.length;
 
   if (!ready) return null;
 
@@ -40,20 +38,14 @@ export default function CommunityVoice() {
           <button
             type="button"
             className={`${styles.tab} ${tab === "recent" ? styles.tabActive : ""}`}
-            onClick={() => {
-              setTab("recent");
-              setVisibleCount(4);
-            }}
+            onClick={() => setTab("recent")}
           >
             Most Recent
           </button>
           <button
             type="button"
             className={`${styles.tab} ${tab === "highest" ? styles.tabActive : ""}`}
-            onClick={() => {
-              setTab("highest");
-              setVisibleCount(4);
-            }}
+            onClick={() => setTab("highest")}
           >
             Highest Rated
           </button>
@@ -63,30 +55,22 @@ export default function CommunityVoice() {
       <AnimatePresence mode="wait">
         <motion.div
           key={tab}
-          className={styles.grid}
           initial={{ opacity: 0, y: 20 }}
           animate={{ opacity: 1, y: 0 }}
           exit={{ opacity: 0, y: -20 }}
           transition={{ duration: 0.3 }}
         >
-          {reviews.map((review) => (
-            <ReviewCard key={review.id} review={review} detailed />
-          ))}
+          <PaginatedList
+            items={sortedReviews}
+            pageSize={PAGE_SIZE}
+            className={styles.grid}
+            emptyMessage="No reviews yet. Be the first to share your experience."
+            renderItem={(review) => (
+              <ReviewCard key={review.id} review={review} detailed />
+            )}
+          />
         </motion.div>
       </AnimatePresence>
-
-      {hasMore && (
-        <div className={styles.loadMoreWrap}>
-          <button
-            type="button"
-            className={styles.loadMore}
-            onClick={() => setVisibleCount((c) => c + 4)}
-          >
-            Load More Reviews
-            <ChevronDown aria-hidden />
-          </button>
-        </div>
-      )}
     </section>
   );
 }

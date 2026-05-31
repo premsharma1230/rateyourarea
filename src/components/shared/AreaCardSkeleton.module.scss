@@ -1,0 +1,111 @@
+@use "@/styles/variables" as *;
+@use "@/styles/mixins" as *;
+
+@mixin shimmer-block {
+  background: linear-gradient(
+    90deg,
+    rgba($color-on-surface-variant, 0.08) 0%,
+    rgba($color-primary, 0.12) 50%,
+    rgba($color-on-surface-variant, 0.08) 100%
+  );
+  background-size: 200% 100%;
+  animation: shimmer 1.4s ease-in-out infinite;
+
+  :global(.dark) & {
+    background: linear-gradient(
+      90deg,
+      rgba($color-on-surface-variant-dark, 0.1) 0%,
+      rgba($color-primary, 0.2) 50%,
+      rgba($color-on-surface-variant-dark, 0.1) 100%
+    );
+    background-size: 200% 100%;
+  }
+}
+
+.card {
+  border-radius: $radius-2xl;
+  overflow: hidden;
+  pointer-events: none;
+
+  :global(.light) & {
+    @include neo-card;
+    padding: 1rem;
+  }
+
+  :global(.dark) & {
+    @include neo-card-dark;
+    padding: 1rem;
+  }
+}
+
+.image {
+  aspect-ratio: 4 / 3;
+  border-radius: $radius-xl;
+  margin-bottom: 1.5rem;
+  @include shimmer-block;
+}
+
+.content {
+  padding: 0.5rem;
+  display: flex;
+  flex-direction: column;
+  gap: 0.75rem;
+}
+
+.titleRow {
+  @include flex-between;
+  gap: 0.75rem;
+}
+
+.title {
+  flex: 1;
+  height: 1.25rem;
+  border-radius: $radius-md;
+  max-width: 70%;
+  @include shimmer-block;
+}
+
+.badge {
+  width: 2.75rem;
+  height: 1.5rem;
+  border-radius: $radius-full;
+  flex-shrink: 0;
+  @include shimmer-block;
+}
+
+.line {
+  height: 0.875rem;
+  border-radius: $radius-md;
+  @include shimmer-block;
+}
+
+.lineShort {
+  height: 0.875rem;
+  width: 75%;
+  border-radius: $radius-md;
+  @include shimmer-block;
+}
+
+.footer {
+  padding-top: 1rem;
+  border-top: 1px solid rgba($color-outline-variant, 0.1);
+
+  :global(.light) & {
+    border-color: rgba($color-outline, 0.3);
+  }
+}
+
+.footerLine {
+  height: 0.625rem;
+  width: 40%;
+  border-radius: $radius-md;
+  @include shimmer-block;
+}
+
+.countLine {
+  height: 0.875rem;
+  width: 5rem;
+  border-radius: $radius-md;
+  margin-bottom: 1.5rem;
+  @include shimmer-block;
+}
