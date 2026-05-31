@@ -138,7 +138,11 @@ const DURATION_LABELS = {
   "5+": "5+ years",
 };
 
-export function buildReviewFromForm(form, area) {
+export function buildReviewFromForm(
+  form,
+  area,
+  { isAnonymous = true, reviewerDisplayName = null } = {}
+) {
   const rating = form.ratings.overall || 0;
   const quote =
     [form.pros, form.cons].filter(Boolean).join(" ").trim() ||
@@ -159,6 +163,8 @@ export function buildReviewFromForm(form, area) {
     areaSlug: area.slug,
     areaName: area.name,
     areaType: area.type,
+    reviewTargetType: form.reviewTargetType || null,
+    reviewTargetName: form.reviewTargetName?.trim() || null,
     rating,
     detailedRatings: form.ratings,
     residentType: form.residentType,
@@ -173,7 +179,9 @@ export function buildReviewFromForm(form, area) {
     recommended: form.recommend,
     date: new Date().toISOString().split("T")[0],
     avatarVariant: rating <= 2.5 ? "error" : "primary",
-    isUserReview: true,
+    isUserReview: !isAnonymous,
+    isAnonymous,
+    reviewerDisplayName: reviewerDisplayName?.trim() || null,
   };
 }
 

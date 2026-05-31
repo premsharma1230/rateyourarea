@@ -5,44 +5,31 @@ import Image from "next/image";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { motion, AnimatePresence } from "framer-motion";
-import { Menu, X, ChevronDown, Plus, User } from "lucide-react";
+import { Menu, X, Plus } from "lucide-react";
 
 import SearchBar from "@/components/shared/SearchBar";
+import UserInitials from "@/components/shared/UserInitials";
 import ThemeToggle from "@/components/layout/ThemeToggle";
 import LoginModal from "@/components/forms/LoginModal";
 import { useAuth } from "@/components/providers/AuthProvider";
+import { getFirstName } from "@/lib/user-display";
 import { LOGO_URL } from "@/lib/constants";
 import {
   MAIN_NAV_ITEMS,
   PROFILE_NAV_ITEM,
-  blogMenu,
   isNavActive,
 } from "@/lib/nav-config";
-import {
-  DropdownMenu,
-  DropdownMenuContent,
-  DropdownMenuItem,
-  DropdownMenuTrigger,
-} from "@/components/ui/dropdown-menu";
 import styles from "./Header.module.scss";
-
-function NavDropdown({ label, children }) {
-  return (
-    <DropdownMenu>
-      <DropdownMenuTrigger className={styles.navLink}>
-        {label}
-        <ChevronDown className={styles.chevron} aria-hidden />
-      </DropdownMenuTrigger>
-      <DropdownMenuContent align="center">{children}</DropdownMenuContent>
-    </DropdownMenu>
-  );
-}
 
 export default function Header() {
   const pathname = usePathname();
-  const { isLoggedIn } = useAuth();
+  const { isLoggedIn, user } = useAuth();
   const [mobileOpen, setMobileOpen] = useState(false);
   const [loginOpen, setLoginOpen] = useState(false);
+
+  const profileFirstName = user
+    ? getFirstName(user.name, user.email)
+    : PROFILE_NAV_ITEM.label;
 
   const closeDrawer = () => setMobileOpen(false);
 
@@ -67,16 +54,8 @@ export default function Header() {
           </div>
 
           <nav className={styles.nav}>
-            {MAIN_NAV_ITEMS.map(({ href, label, match }) =>
-              label === "Blog" ? (
-                <NavDropdown key={href} label="Blog">
-                  {blogMenu.map((item) => (
-                    <DropdownMenuItem key={item} render={<Link href="/blog" />}>
-                      {item}
-                    </DropdownMenuItem>
-                  ))}
-                </NavDropdown>
-              ) : (
+            {MAIN_NAV_ITEMS.filter((item) => !item.hidden).map(
+              ({ href, label, match }) => (
                 <Link
                   key={href}
                   href={href}
@@ -84,34 +63,28 @@ export default function Header() {
                 >
                   {label}
                 </Link>
-              )
-            )}
-            {isLoggedIn && (
-              <Link
-                href={PROFILE_NAV_ITEM.href}
-                className={`${styles.navLink} ${isNavActive(pathname, PROFILE_NAV_ITEM.match) ? styles.active : ""}`}
-              >
-                {PROFILE_NAV_ITEM.label}
-              </Link>
+              ),
             )}
           </nav>
 
           <div className={styles.right}>
             <ThemeToggle />
-            {isLoggedIn ? (
-              <Link href="/profile" className={styles.profileBtn}>
-                <User className="size-4" aria-hidden />
-                <span className={styles.profileLabel}>Profile</span>
-              </Link>
-            ) : (
-              <button
-                type="button"
-                className={styles.loginBtn}
-                onClick={() => setLoginOpen(true)}
-              >
-                Login
-              </button>
-            )}
+            <div className={styles.headerAuth}>
+              {isLoggedIn ? (
+                <Link href="/profile" className={styles.profileBtn}>
+                  <UserInitials name={user.name} email={user.email} size="sm" />
+                  <span className={styles.profileLabel}>{profileFirstName}</span>
+                </Link>
+              ) : (
+                <button
+                  type="button"
+                  className={styles.loginBtn}
+                  onClick={() => setLoginOpen(true)}
+                >
+                  Login
+                </button>
+              )}
+            </div>
             <Link href="/review" className={styles.addReviewBtn}>
               <Plus className={styles.addReviewIcon} aria-hidden />
               <span className={styles.addReviewLabelFull}>Add Review</span>
@@ -163,36 +136,40 @@ export default function Header() {
                 onSearch={closeDrawer}
               />
               <nav className={styles.drawerNav}>
-                {MAIN_NAV_ITEMS.map(({ href, label, match }) => (
-                  <Link
-                    key={href}
-                    href={href}
-                    className={`${styles.drawerLink} ${isNavActive(pathname, match) ? styles.drawerLinkActive : ""}`}
-                    onClick={closeDrawer}
-                  >
-                    {label}
-                  </Link>
-                ))}
-                {isLoggedIn ? (
-                  <Link
-                    href={PROFILE_NAV_ITEM.href}
-                    className={`${styles.drawerLink} ${isNavActive(pathname, PROFILE_NAV_ITEM.match) ? styles.drawerLinkActive : ""}`}
-                    onClick={closeDrawer}
-                  >
-                    {PROFILE_NAV_ITEM.label}
-                  </Link>
-                ) : (
-                  <button
-                    type="button"
-                    className={styles.drawerLink}
-                    onClick={() => {
-                      closeDrawer();
-                      setLoginOpen(true);
-                    }}
-                  >
-                    Login
-                  </button>
+                {MAIN_NAV_ITEMS.filter((item) => !item.hidden).map(
+                  ({ href, label, match }) => (
+                    <Link
+                      key={href}
+                      href={href}
+                      className={`${styles.drawerLink} ${isNavActive(pathname, match) ? styles.drawerLinkActive : ""}`}
+                      onClick={closeDrawer}
+                    >
+                      {label}
+                    </Link>
+                  ),
                 )}
+                <div className={styles.drawerAuth}>
+                  {isLoggedIn ? (
+                    <Link
+                      href={PROFILE_NAV_ITEM.href}
+                      className={`${styles.drawerLink} ${isNavActive(pathname, PROFILE_NAV_ITEM.match) ? styles.drawerLinkActive : ""}`}
+                      onClick={closeDrawer}
+                    >
+                      {profileFirstName}
+                    </Link>
+                  ) : (
+                    <button
+                      type="button"
+                      className={styles.drawerLink}
+                      onClick={() => {
+                        closeDrawer();
+                        setLoginOpen(true);
+                      }}
+                    >
+                      Login
+                    </button>
+                  )}
+                </div>
               </nav>
             </motion.aside>
           </>

@@ -1,16 +1,44 @@
 "use client";
 
+import { useEffect, useState } from "react";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
-import { User, LogOut, Star, MapPin } from "lucide-react";
+import { LogOut, Star, MapPin } from "lucide-react";
 
+import UserInitials from "@/components/shared/UserInitials";
 import { useAuth } from "@/components/providers/AuthProvider";
+import { getProfile } from "@/backend/api/profiles";
 import { Button } from "@/components/ui/button";
 import styles from "./page.module.scss";
 
 export default function ProfilePage() {
   const router = useRouter();
   const { user, isLoggedIn, logout, ready } = useAuth();
+  const [profile, setProfile] = useState(null);
+  const [profileLoading, setProfileLoading] = useState(false);
+
+  useEffect(() => {
+    if (!user?.id) {
+      setProfile(null);
+      return;
+    }
+
+    let mounted = true;
+
+    (async () => {
+      setProfileLoading(true);
+
+      const { data } = await getProfile(user.id);
+      if (mounted) {
+        setProfile(data);
+        setProfileLoading(false);
+      }
+    })();
+
+    return () => {
+      mounted = false;
+    };
+  }, [user?.id]);
 
   if (!ready) {
     return <div className={styles.page} aria-busy="true" />;
@@ -21,7 +49,9 @@ export default function ProfilePage() {
       <div className={styles.page}>
         <div className={styles.card}>
           <h1 className={styles.title}>Profile</h1>
-          <p className={styles.subtitle}>Login to view your profile and saved activity.</p>
+          <p className={styles.subtitle}>
+            Login to view your profile and saved activity.
+          </p>
           <Button render={<Link href="/" />} variant="outline">
             Back to Home
           </Button>
@@ -30,14 +60,43 @@ export default function ProfilePage() {
     );
   }
 
+  const displayName = profile?.fullName || user.name;
+  const areaLabel =
+    profile?.areaName ||
+    profile?.areaSlug?.replace(/-/g, " ") ||
+    null;
+
   return (
     <div className={styles.page}>
       <div className={styles.card}>
         <div className={styles.avatar}>
-          <User className="size-8" aria-hidden />
+          <UserInitials
+            name={displayName}
+            email={user.email}
+            size="lg"
+          />
         </div>
-        <h1 className={styles.title}>{user.name}</h1>
+        <h1 className={styles.title}>{displayName}</h1>
         <p className={styles.email}>{user.email}</p>
+
+        {profileLoading ? (
+          <p className={styles.subtitle}>Loading profile…</p>
+        ) : null}
+
+        {!profileLoading && areaLabel ? (
+          <p className={styles.subtitle}>
+            <MapPin className="inline size-4 mr-1" aria-hidden />
+            {areaLabel}
+            {profile?.pincode ? ` · ${profile.pincode}` : ""}
+          </p>
+        ) : null}
+
+        {!profileLoading && profile?.durationLived ? (
+          <p className={styles.subtitle}>
+            Lived: {profile.durationLived}
+            {profile.isCurrentResident ? " (current resident)" : ""}
+          </p>
+        ) : null}
 
         <div className={styles.actions}>
           <Link href="/review" className={styles.actionLink}>
@@ -53,8 +112,8 @@ export default function ProfilePage() {
         <Button
           variant="outline"
           className={styles.logoutBtn}
-          onClick={() => {
-            logout();
+          onClick={async () => {
+            await logout();
             router.push("/");
           }}
         >

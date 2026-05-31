@@ -35,6 +35,10 @@ html.dark .site-main {
   }
 }
 
+.hidden {
+  display: none !important;
+}
+
 ::-webkit-scrollbar {
   width: 10px;
 }

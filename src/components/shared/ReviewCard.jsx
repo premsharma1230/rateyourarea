@@ -1,8 +1,7 @@
 "use client";
 
 import {
-  User,
-  UserX,
+  UserRound,
   Shield,
   Droplets,
   TrainFront,
@@ -21,8 +20,16 @@ import {
   Calendar,
 } from "lucide-react";
 
+import { useAuth } from "@/components/providers/AuthProvider";
 import RatingBadge from "./RatingBadge";
 import AnonymousBadge from "./AnonymousBadge";
+import UserInitials from "./UserInitials";
+import { formatReviewTargetLabel } from "@/lib/review-target";
+import {
+  getReviewAuthorName,
+  getReviewDisplayName,
+  isReviewAnonymous,
+} from "@/lib/review-display";
 import styles from "./ReviewCard.module.scss";
 
 const iconMap = {
@@ -42,7 +49,14 @@ const iconMap = {
 };
 
 export default function ReviewCard({ review, detailed = false }) {
-  const AvatarIcon = review.avatarVariant === "error" ? UserX : User;
+  const { user } = useAuth();
+  const anonymous = isReviewAnonymous(review);
+  const displayName = getReviewDisplayName(review, user);
+  const authorName = getReviewAuthorName(review, user);
+  const reviewTargetLabel = formatReviewTargetLabel(
+    review.reviewTargetType,
+    review.reviewTargetName
+  );
 
   return (
     <article className={`${styles.card} ${detailed ? styles.detailed : ""}`}>
@@ -51,13 +65,28 @@ export default function ReviewCard({ review, detailed = false }) {
       <div className={styles.top}>
         <div className={styles.author}>
           <div
-            className={`${styles.avatar} ${review.avatarVariant === "error" ? styles.avatarError : ""}`}
+            className={`${styles.avatar} ${anonymous ? styles.avatarAnonymous : styles.avatarVerified}`}
           >
-            <AvatarIcon className={styles.avatarIcon} aria-hidden />
+            {anonymous ? (
+              <UserRound className={styles.avatarIcon} aria-hidden />
+            ) : (
+              <UserInitials
+                name={displayName || "Resident"}
+                email={user?.email}
+                size="lg"
+                className={styles.initials}
+              />
+            )}
           </div>
-          <div>
-            <h4 className={styles.name}>Anonymous Resident</h4>
-            <AnonymousBadge area={review.areaName} />
+          <div className={styles.authorText}>
+            <h4 className={styles.name}>{authorName}</h4>
+            <AnonymousBadge
+              area={review.areaName}
+              variant={anonymous ? "anonymous" : "verified"}
+            />
+            {reviewTargetLabel ? (
+              <p className={styles.reviewTarget}>{reviewTargetLabel}</p>
+            ) : null}
             <div className={styles.meta}>
               {review.residentLabel && (
                 <span className={styles.metaItem}>{review.residentLabel}</span>

@@ -7,7 +7,9 @@ import { motion, AnimatePresence } from "framer-motion";
 import { Star, CheckCircle } from "lucide-react";
 
 import AreaPicker from "@/components/forms/AreaPicker";
+import ReviewTargetFields from "@/components/forms/ReviewTargetFields";
 import ReviewCard from "@/components/shared/ReviewCard";
+import { useAuth } from "@/components/providers/AuthProvider";
 import { useCommunityData } from "@/components/providers/CommunityDataProvider";
 import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
@@ -20,6 +22,11 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
+import {
+  formatReviewTargetLabel,
+  getDefaultReviewTargetType,
+  isValidReviewTarget,
+} from "@/lib/review-target";
 import styles from "./AnonymousReviewForm.module.scss";
 
 const RATING_FIELDS = [
@@ -65,9 +72,12 @@ function StarRating({ value, onChange }) {
 
 export default function AnonymousReviewForm() {
   const searchParams = useSearchParams();
+  const { isLoggedIn, user } = useAuth();
   const { submitReview, getAreaBySlug, ready } = useCommunityData();
   const preselectedSlug = searchParams.get("area");
   const [step, setStep] = useState(1);
+  const [submitting, setSubmitting] = useState(false);
+  const [submitError, setSubmitError] = useState("");
   const [submittedReview, setSubmittedReview] = useState(null);
   const [submittedArea, setSubmittedArea] = useState(null);
   const [areaSelection, setAreaSelection] = useState({
@@ -78,6 +88,8 @@ export default function AnonymousReviewForm() {
   });
   const [form, setForm] = useState({
     area: "",
+    reviewTargetType: "society",
+    reviewTargetName: "",
     pincode: "",
     residentType: "",
     duration: "",
@@ -94,14 +106,38 @@ export default function AnonymousReviewForm() {
     const area = getAreaBySlug(preselectedSlug);
     if (!area) return;
 
-    setForm((f) => ({ ...f, area: area.name }));
-    setAreaSelection({
+    const selection = {
       mode: "existing",
       area,
       isNew: false,
       newAreaMeta: null,
-    });
+    };
+    setAreaSelection(selection);
+    setForm((f) => ({
+      ...f,
+      area: area.name,
+      reviewTargetType: getDefaultReviewTargetType(selection),
+      reviewTargetName: "",
+    }));
   }, [ready, preselectedSlug, getAreaBySlug]);
+
+  const areaConfirmed =
+    form.area.trim().length > 0 &&
+    (areaSelection.area || areaSelection.isNew);
+
+  const areaSelectionKey =
+    areaSelection.area?.slug ??
+    (areaSelection.isNew ? `new:${form.area.trim().toLowerCase()}` : "");
+
+  useEffect(() => {
+    if (!areaSelectionKey) return;
+
+    setForm((f) => ({
+      ...f,
+      reviewTargetType: getDefaultReviewTargetType(areaSelection),
+      reviewTargetName: "",
+    }));
+  }, [areaSelectionKey]);
 
   const updateRating = (key, val) => {
     setForm((f) => ({
@@ -120,28 +156,37 @@ export default function AnonymousReviewForm() {
   };
 
   const canProceedStep1 =
-    form.area.trim().length > 0 &&
+    areaConfirmed &&
+    isValidReviewTarget(form.reviewTargetType, form.reviewTargetName) &&
     form.residentType &&
-    form.duration &&
-    (areaSelection.area || areaSelection.isNew);
+    form.duration;
 
   const canSubmit =
     form.ratings.overall > 0 &&
     (form.pros.trim() || form.cons.trim()) &&
     form.recommend !== null;
 
-  const handleSubmit = () => {
-    if (!canSubmit) return;
+  const handleSubmit = async () => {
+    if (!canSubmit || submitting) return;
 
-    const { review, area } = submitReview({
-      form,
-      selectedArea: areaSelection.area,
-      isNewArea: areaSelection.isNew,
-      newAreaMeta: areaSelection.newAreaMeta,
-    });
+    setSubmitting(true);
+    setSubmitError("");
 
-    setSubmittedReview(review);
-    setSubmittedArea(area);
+    try {
+      const { review, area } = await submitReview({
+        form,
+        selectedArea: areaSelection.area,
+        isNewArea: areaSelection.isNew,
+        newAreaMeta: areaSelection.newAreaMeta,
+      });
+
+      setSubmittedReview(review);
+      setSubmittedArea(area);
+    } catch {
+      setSubmitError("Something went wrong. Please try again.");
+    } finally {
+      setSubmitting(false);
+    }
   };
 
   if (submittedReview) {
@@ -154,8 +199,9 @@ export default function AnonymousReviewForm() {
         <CheckCircle className={`${styles.successIcon} text-primary mx-auto`} />
         <h2 className="text-2xl font-bold mb-2">Review Submitted!</h2>
         <p className="text-muted-foreground mb-6">
-          Thank you for helping the community. Your anonymous review is live
-          below.
+          {isLoggedIn
+            ? "Thank you for helping the community. Your review is live below."
+            : "Thank you for helping the community. Your anonymous review is live below."}
         </p>
         <div className={styles.submittedReview}>
           <ReviewCard review={submittedReview} detailed />
@@ -174,7 +220,16 @@ export default function AnonymousReviewForm() {
 
   return (
     <div className={styles.wrapper}>
-      <div className={styles.banner}>🔒 100% Anonymous — No account needed</div>
+      <div className={styles.banner}>
+        {isLoggedIn
+          ? "Posting as your account — review linked to you"
+          : "🔒 100% Anonymous — No account needed"}
+      </div>
+      {submitError ? (
+        <p className="text-sm text-destructive text-center mb-2" role="alert">
+          {submitError}
+        </p>
+      ) : null}
       <div className={styles.card}>
         <div className={styles.progress}>
           {[1, 2, 3].map((s, i) => (
@@ -204,6 +259,20 @@ export default function AnonymousReviewForm() {
                   onAreaSelect={setAreaSelection}
                 />
               </div>
+              {areaConfirmed ? (
+                <div className={styles.field}>
+                  <ReviewTargetFields
+                    type={form.reviewTargetType}
+                    name={form.reviewTargetName}
+                    onTypeChange={(reviewTargetType) =>
+                      setForm({ ...form, reviewTargetType })
+                    }
+                    onNameChange={(reviewTargetName) =>
+                      setForm({ ...form, reviewTargetName })
+                    }
+                  />
+                </div>
+              ) : null}
               <div className={styles.field}>
                 <Label className={styles.label}>Pincode</Label>
                 <Input
@@ -360,8 +429,17 @@ export default function AnonymousReviewForm() {
                 </button>
               </div>
               <div className={styles.preview}>
-                Will appear as: <strong>Anonymous Resident</strong> •{" "}
-                {form.area || "Your Area"} • {form.duration || "Duration"}
+                Will appear as:{" "}
+                <strong>
+                  {isLoggedIn && user?.name
+                    ? user.name
+                    : "Anonymous Resident"}
+                </strong>{" "}
+                • {form.area || "Your Area"}
+                {isValidReviewTarget(form.reviewTargetType, form.reviewTargetName)
+                  ? ` • ${formatReviewTargetLabel(form.reviewTargetType, form.reviewTargetName)}`
+                  : ""}{" "}
+                • {form.duration || "Duration"}
               </div>
               <div className={styles.navBtns}>
                 <Button
@@ -374,10 +452,14 @@ export default function AnonymousReviewForm() {
                 <button
                   type="button"
                   className={styles.submitBtn}
-                  disabled={!canSubmit}
+                  disabled={!canSubmit || submitting}
                   onClick={handleSubmit}
                 >
-                  🔒 Submit Anonymously
+                  {submitting
+                    ? "Submitting…"
+                    : isLoggedIn
+                      ? "Submit Review"
+                      : "🔒 Submit Anonymously"}
                 </button>
               </div>
             </motion.div>
