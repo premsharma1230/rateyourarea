@@ -1,0 +1,30 @@
+@use "@/styles/variables" as *;
+@use "@/styles/mixins" as *;
+
+.toggle {
+  @include flex-center;
+  width: 2.5rem;
+  height: 2.5rem;
+  border-radius: $radius-full;
+  transition: all 0.3s ease;
+  color: $color-on-surface-variant;
+
+  :global(.light) & {
+    background: $color-bg-light;
+    box-shadow: $neo-shadow-outset-sm;
+    color: $color-blue-deep;
+
+    &:hover {
+      color: $color-primary;
+    }
+  }
+
+  :global(.dark) & {
+    @include neo-outset-sm-dark;
+    color: $color-on-surface-variant-dark;
+
+    &:hover {
+      color: $color-primary;
+    }
+  }
+}

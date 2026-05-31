@@ -1,0 +1,43 @@
+@use "@/styles/variables" as *;
+@use "@/styles/mixins" as *;
+
+.badge {
+  display: flex;
+  align-items: center;
+  gap: 0.25rem;
+  font-size: 0.875rem;
+  font-weight: 700;
+
+  :global(.light) & {
+    @include neo-inset;
+    padding: 0.375rem 0.75rem;
+    border-radius: $radius-md;
+    color: $color-blue-deep;
+  }
+
+  :global(.dark) & {
+    @include neo-inset-dark;
+    padding: 0.375rem 0.75rem;
+    border-radius: $radius-md;
+    color: $color-primary;
+  }
+
+  &.low {
+    :global(.light) & {
+      color: #ef4444;
+    }
+
+    :global(.dark) & .star {
+      color: $color-error;
+    }
+  }
+}
+
+.star {
+  width: 0.875rem;
+  height: 0.875rem;
+}
+
+.value {
+  font-weight: 700;
+}

@@ -1,0 +1,51 @@
+@use "@/styles/variables" as *;
+@use "@/styles/mixins" as *;
+
+.posts {
+  display: grid;
+  gap: 1.5rem;
+
+  @media (min-width: 768px) {
+    grid-template-columns: repeat(2, 1fr);
+  }
+}
+
+.post {
+  padding: 2rem;
+  border-radius: $radius-2xl;
+
+  :global(.light) & {
+    @include neo-card;
+  }
+
+  :global(.dark) & {
+    @include neo-card-dark;
+  }
+
+  h2 {
+    font-size: 1.25rem;
+    font-weight: 800;
+    margin-bottom: 0.5rem;
+  }
+
+  p {
+    font-size: 0.875rem;
+    margin-bottom: 1rem;
+
+    :global(.light) & {
+      color: $color-on-surface-variant;
+    }
+
+    :global(.dark) & {
+      color: $color-on-surface-variant-dark;
+    }
+  }
+}
+
+.coming {
+  font-size: 0.75rem;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  color: $color-primary;
+}

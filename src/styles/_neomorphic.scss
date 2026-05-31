@@ -1,0 +1,56 @@
+@use "variables" as *;
+@use "mixins" as *;
+
+// Light utilities
+.neo-outset {
+  @include neo-outset;
+}
+
+.neo-outset-sm {
+  @include neo-outset-sm;
+}
+
+.neo-inset {
+  @include neo-inset;
+}
+
+.neo-inset-sm {
+  @include neo-inset-sm;
+}
+
+.neo-card {
+  @include neo-card;
+}
+
+.neo-primary {
+  @include neo-primary;
+}
+
+.gradient-primary-text {
+  @include gradient-text-light;
+}
+
+// Dark utilities (mirror light — use under html.dark)
+html.dark .neo-outset {
+  @include neo-outset-dark;
+}
+
+html.dark .neo-outset-sm {
+  @include neo-outset-sm-dark;
+}
+
+html.dark .neo-inset {
+  @include neo-inset-dark;
+}
+
+html.dark .neo-inset-sm {
+  @include neo-inset-sm-dark;
+}
+
+html.dark .neo-card {
+  @include neo-card-dark;
+}
+
+html.dark .neo-primary {
+  @include neo-primary-dark;
+}

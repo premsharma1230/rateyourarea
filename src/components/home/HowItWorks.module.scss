@@ -1,0 +1,153 @@
+@use "@/styles/variables" as *;
+@use "@/styles/mixins" as *;
+
+.section {
+  position: relative;
+  overflow: hidden;
+  padding: 6rem 4rem;
+  border-radius: 2.5rem;
+  text-align: center;
+
+  :global(.light) & {
+    @include neo-outset;
+    border-radius: 3rem;
+    padding: 6rem 4rem;
+  }
+
+  :global(.dark) & {
+    @include neo-outset-dark;
+  }
+
+  @include mobile {
+    padding: 3rem 1.5rem;
+  }
+}
+
+.glow1,
+.glow2 {
+  position: absolute;
+  border-radius: 50%;
+  pointer-events: none;
+
+  :global(.light) & {
+    display: none;
+  }
+}
+
+.glow1 {
+  top: -6rem;
+  left: -6rem;
+  width: 16rem;
+  height: 16rem;
+  background: rgba($color-primary, 0.1);
+  filter: blur(80px);
+}
+
+.glow2 {
+  bottom: -6rem;
+  right: -6rem;
+  width: 16rem;
+  height: 16rem;
+  background: rgba($color-tertiary, 0.1);
+  filter: blur(80px);
+}
+
+.title {
+  font-size: clamp(2rem, 5vw, 3rem);
+  font-weight: 900;
+  margin-bottom: 5rem;
+  position: relative;
+  z-index: 1;
+  letter-spacing: -0.02em;
+
+  :global(.light) & {
+    color: $color-on-surface;
+  }
+
+  :global(.dark) & {
+    color: $color-on-surface-dark;
+  }
+}
+
+.grid {
+  display: grid;
+  grid-template-columns: 1fr;
+  gap: 4rem;
+  position: relative;
+  z-index: 1;
+
+  @media (min-width: 768px) {
+    grid-template-columns: repeat(3, 1fr);
+    gap: 4rem;
+  }
+}
+
+.step {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+}
+
+.numBox {
+  @include flex-center;
+  width: 5rem;
+  height: 5rem;
+  margin-bottom: 2rem;
+  border-radius: $radius-2xl;
+  transition: transform 0.5s ease;
+
+  :global(.light) & {
+    @include neo-card;
+    width: 6rem;
+    height: 6rem;
+  }
+
+  :global(.dark) & {
+    @include neo-card-dark;
+    width: 6rem;
+    height: 6rem;
+  }
+
+  &:hover {
+    transform: rotate(0deg) !important;
+  }
+}
+
+.num {
+  font-size: 1.875rem;
+  font-weight: 900;
+  color: $color-primary;
+
+  :global(.light) & {
+    font-size: 2.25rem;
+  }
+}
+
+.stepTitle {
+  font-size: 1.5rem;
+  font-weight: 800;
+  margin-bottom: 1rem;
+
+  :global(.light) & {
+    color: $color-on-surface;
+  }
+
+  :global(.dark) & {
+    color: $color-on-surface-dark;
+  }
+}
+
+.stepDesc {
+  max-width: 18rem;
+  line-height: 1.6;
+  font-weight: 500;
+
+  :global(.light) & {
+    color: $color-on-surface-variant;
+    font-weight: 600;
+  }
+
+  :global(.dark) & {
+    color: $color-on-surface-variant-dark;
+  }
+}

@@ -1,0 +1,23 @@
+@use "@/styles/variables" as *;
+
+.badge {
+  display: flex;
+  align-items: center;
+  gap: 0.375rem;
+  font-size: 0.875rem;
+  font-weight: 600;
+
+  :global(.light) & {
+    color: $color-on-surface-variant;
+  }
+
+  :global(.dark) & {
+    color: rgba($color-on-surface-variant-dark, 0.7);
+  }
+}
+
+.icon {
+  width: 1rem;
+  height: 1rem;
+  color: $color-primary;
+}

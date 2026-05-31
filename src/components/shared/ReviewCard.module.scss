@@ -1,0 +1,144 @@
+@use "@/styles/variables" as *;
+@use "@/styles/mixins" as *;
+
+.card {
+  border-radius: $radius-2xl;
+  padding: 2rem;
+  position: relative;
+  overflow: hidden;
+
+  :global(.light) & {
+    @include neo-card;
+  }
+
+  :global(.dark) & {
+    @include neo-card-dark;
+  }
+}
+
+.top {
+  @include flex-between;
+  align-items: flex-start;
+  margin-bottom: 1.5rem;
+  position: relative;
+  z-index: 1;
+}
+
+.author {
+  display: flex;
+  align-items: center;
+  gap: 1rem;
+}
+
+.avatar {
+  @include flex-center;
+  width: 3.5rem;
+  height: 3.5rem;
+  border-radius: $radius-full;
+
+  :global(.light) & {
+    @include neo-inset;
+    border-radius: $radius-2xl;
+    width: 4rem;
+    height: 4rem;
+  }
+
+  :global(.dark) & {
+    @include neo-inset-dark;
+    border-radius: $radius-2xl;
+    width: 4rem;
+    height: 4rem;
+  }
+
+  &.avatarError .avatarIcon {
+    color: $color-error;
+  }
+}
+
+.avatarIcon {
+  width: 1.75rem;
+  height: 1.75rem;
+  color: $color-primary;
+
+  .avatarError & {
+    color: $color-error;
+
+    :global(.light) & {
+      color: #f87171;
+    }
+  }
+}
+
+.name {
+  font-size: 1.125rem;
+  font-weight: 800;
+
+  :global(.light) & {
+    color: $color-on-surface;
+  }
+
+  :global(.dark) & {
+    color: $color-on-surface-dark;
+  }
+}
+
+.quote {
+  font-size: 1.125rem;
+  font-style: italic;
+  line-height: 1.6;
+  margin-bottom: 2rem;
+  font-weight: 500;
+
+  :global(.light) & {
+    color: $color-on-surface-variant;
+  }
+
+  :global(.dark) & {
+    color: $color-on-surface-dark;
+  }
+}
+
+.tags {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.75rem;
+}
+
+.tag {
+  display: flex;
+  align-items: center;
+  gap: 0.375rem;
+  padding: 0.375rem 0.75rem;
+  border-radius: $radius-full;
+  font-size: 0.75rem;
+  font-weight: 700;
+
+  :global(.light) & {
+    @include neo-inset-sm;
+    border-radius: $radius-md;
+    padding: 0.5rem 1rem;
+    color: $color-blue-deep;
+  }
+
+  :global(.dark) & {
+    @include neo-inset-sm-dark;
+    border-radius: $radius-md;
+    padding: 0.5rem 1rem;
+    color: $color-primary;
+  }
+
+  &.tagError {
+    :global(.light) & {
+      color: #ef4444;
+    }
+
+    :global(.dark) & {
+      color: $color-error;
+    }
+  }
+}
+
+.tagIcon {
+  width: 1rem;
+  height: 1rem;
+}

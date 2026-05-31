@@ -1,0 +1,230 @@
+@use "@/styles/variables" as *;
+@use "@/styles/mixins" as *;
+
+.hero {
+  position: relative;
+  overflow: hidden;
+  padding: 8rem 0 10rem;
+
+  :global(.light) & {
+    padding: 6rem 0 8rem;
+  }
+}
+
+.glow1,
+.glow2 {
+  position: absolute;
+  border-radius: 50%;
+  pointer-events: none;
+
+  :global(.light) & {
+    display: none;
+  }
+}
+
+.glow1 {
+  top: -5rem;
+  right: -5rem;
+  width: 600px;
+  height: 600px;
+  background: rgba($color-primary, 0.05);
+  filter: blur(120px);
+}
+
+.glow2 {
+  top: 10rem;
+  left: -5rem;
+  width: 400px;
+  height: 400px;
+  background: rgba($color-tertiary, 0.05);
+  filter: blur(100px);
+}
+
+.inner {
+  position: relative;
+  z-index: 10;
+  max-width: 1440px;
+  margin: 0 auto;
+  padding: 0 3rem;
+
+  @include mobile {
+    padding: 0 1.25rem;
+  }
+}
+
+.content {
+  max-width: 56rem;
+}
+
+.badge {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.5rem;
+  padding: 0.375rem 1rem;
+  border-radius: $radius-full;
+  font-size: 0.75rem;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.1em;
+  margin-bottom: 2rem;
+
+  :global(.light) & {
+    @include neo-outset-sm;
+    color: $color-blue-deep;
+  }
+
+  :global(.dark) & {
+    @include neo-outset-sm-dark;
+    color: $color-primary;
+  }
+}
+
+.pingWrap {
+  position: relative;
+  display: flex;
+  width: 0.5rem;
+  height: 0.5rem;
+}
+
+.ping {
+  position: absolute;
+  inset: 0;
+  border-radius: 50%;
+  background: $color-primary;
+  animation: ping 1.5s cubic-bezier(0, 0, 0.2, 1) infinite;
+}
+
+.dot {
+  position: relative;
+  width: 0.5rem;
+  height: 0.5rem;
+  border-radius: 50%;
+  background: $color-primary;
+}
+
+.heading {
+  font-size: clamp(2.5rem, 8vw, 5rem);
+  font-weight: 900;
+  line-height: 1.05;
+  letter-spacing: -0.02em;
+  margin-bottom: 1.5rem;
+
+  :global(.light) & {
+    color: $color-on-surface;
+  }
+
+  :global(.dark) & {
+    color: $color-on-surface-dark;
+  }
+}
+
+.gradientWord {
+  :global(.light) & {
+    @include gradient-text-light;
+  }
+
+  :global(.dark) & {
+    @include gradient-text-dark;
+  }
+}
+
+.subtext {
+  font-size: 1.25rem;
+  line-height: 1.6;
+  max-width: 32rem;
+  margin-bottom: 3rem;
+  font-weight: 500;
+
+  :global(.light) & {
+    color: $color-on-surface-variant;
+  }
+
+  :global(.dark) & {
+    color: $color-on-surface-variant-dark;
+  }
+}
+
+.searchBox {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  max-width: 48rem;
+  flex-wrap: wrap;
+
+  :global(.light) & {
+    @include neo-outset;
+    padding: 0.75rem;
+    border-radius: $radius-2xl;
+  }
+
+  :global(.dark) & {
+    @include neo-outset-dark;
+    padding: 0.75rem;
+    border-radius: $radius-2xl;
+  }
+}
+
+.searchInner {
+  flex: 1;
+  display: flex;
+  align-items: center;
+  gap: 1rem;
+  padding: 0 1rem;
+  min-width: 200px;
+}
+
+.searchIcon {
+  width: 1.5rem;
+  height: 1.5rem;
+  flex-shrink: 0;
+
+  :global(.light) & {
+    color: $color-on-surface-variant;
+  }
+
+  :global(.dark) & {
+    color: $color-on-surface-variant-dark;
+  }
+}
+
+.searchInput {
+  flex: 1;
+  border: none;
+  background: transparent;
+  outline: none;
+  font-size: 1.125rem;
+  font-weight: 500;
+  padding: 1rem 0;
+
+  :global(.light) & {
+    color: $color-on-surface;
+  }
+
+  :global(.dark) & {
+    color: $color-on-surface-dark;
+  }
+}
+
+.exploreBtn {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  text-decoration: none;
+  font-weight: 700;
+  white-space: nowrap;
+  transition: all 0.2s;
+
+  :global(.light) & {
+    @include neo-primary;
+    color: $color-on-primary;
+    padding: 1.25rem 2.5rem;
+    border-radius: $radius-xl;
+  }
+
+  :global(.dark) & {
+    @include neo-primary-dark;
+    color: $color-on-primary;
+    padding: 1.25rem 2.5rem;
+    border-radius: $radius-xl;
+  }
+}

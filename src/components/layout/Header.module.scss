@@ -1,0 +1,280 @@
+@use "@/styles/variables" as *;
+@use "@/styles/mixins" as *;
+
+.header {
+  position: sticky;
+  top: 0;
+  z-index: 50;
+  width: 100%;
+  transition: all 0.3s ease;
+
+  :global(.light) & {
+    @include neo-outset;
+    font-family: $font-light;
+    background: rgba(240, 242, 245, 0.8);
+    backdrop-filter: blur(12px);
+    border-bottom: 1px solid rgba($color-outline, 0.3);
+  }
+
+  :global(.dark) & {
+    @include neo-outset-dark;
+    font-family: $font-dark;
+    border-bottom: 1px solid rgba($color-outline-variant, 0.5);
+  }
+}
+
+.inner {
+  @include flex-between;
+  max-width: 1440px;
+  margin: 0 auto;
+  padding: 0 3rem;
+  height: 5rem;
+
+  @include mobile {
+    padding: 0 1.25rem;
+    height: 4.5rem;
+  }
+}
+
+.left {
+  display: flex;
+  align-items: center;
+  gap: 3rem;
+
+  @include tablet {
+    gap: 1rem;
+  }
+}
+
+.logo {
+  display: flex;
+  align-items: center;
+  flex-shrink: 0;
+}
+
+.logoImg {
+  height: 2.5rem;
+  width: auto;
+  object-fit: contain;
+
+  :global(.dark) & {
+    filter: brightness(0) invert(1);
+  }
+}
+
+.searchWrap {
+  display: none;
+  width: 20rem;
+
+  @media (min-width: 1024px) {
+    display: block;
+  }
+}
+
+.nav {
+  display: none;
+  align-items: center;
+  gap: 2.5rem;
+
+  @media (min-width: 1280px) {
+    display: flex;
+  }
+}
+
+.navLink {
+  position: relative;
+  font-size: 0.875rem;
+  font-weight: 600;
+  transition: color 0.2s;
+  background: none;
+  border: none;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  gap: 0.25rem;
+
+  :global(.light) & {
+    color: $color-on-surface-variant;
+
+    &:hover {
+      color: $color-blue-deep;
+    }
+
+    &.active {
+      color: $color-primary;
+    }
+  }
+
+  :global(.dark) & {
+    color: $color-on-surface-variant-dark;
+
+    &:hover {
+      color: $color-primary;
+    }
+
+    &.active {
+      color: $color-primary;
+
+      &::after {
+        content: "";
+        position: absolute;
+        bottom: -4px;
+        left: 0;
+        width: 100%;
+        height: 2px;
+        background: $color-primary;
+      }
+    }
+  }
+}
+
+.right {
+  display: flex;
+  align-items: center;
+  gap: 1.5rem;
+}
+
+.loginBtn {
+  display: none;
+  font-weight: 600;
+  background: none;
+  border: none;
+  cursor: pointer;
+  transition: color 0.2s;
+
+  @media (min-width: 640px) {
+    display: block;
+  }
+
+  :global(.light) & {
+    color: $color-on-surface;
+
+    &:hover {
+      color: $color-primary;
+    }
+  }
+
+  :global(.dark) & {
+    color: $color-on-surface-dark;
+
+    &:hover {
+      color: $color-primary;
+    }
+  }
+}
+
+.addReviewBtn {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  text-decoration: none;
+  transition: all 0.3s ease;
+
+  :global(.light) & {
+    @include neo-primary;
+    color: $color-on-primary;
+    padding: 0.75rem 1.75rem;
+    border-radius: $radius-xl;
+    font-weight: 800;
+    font-size: 0.875rem;
+  }
+
+  :global(.dark) & {
+    @include neo-primary-dark;
+    color: $color-on-primary;
+    padding: 0.75rem 1.75rem;
+    border-radius: $radius-xl;
+    font-weight: 800;
+    font-size: 0.875rem;
+  }
+}
+
+.menuBtn {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 0.5rem;
+  background: none;
+  border: none;
+  cursor: pointer;
+
+  @media (min-width: 1280px) {
+    display: none;
+  }
+
+  :global(.light) & {
+    color: $color-on-surface;
+  }
+
+  :global(.dark) & {
+    color: $color-on-surface-dark;
+  }
+}
+
+.drawerOverlay {
+  position: fixed;
+  inset: 0;
+  background: rgba(0, 0, 0, 0.5);
+  z-index: 60;
+}
+
+.drawer {
+  position: fixed;
+  top: 0;
+  right: 0;
+  height: 100%;
+  width: min(320px, 85vw);
+  z-index: 70;
+  padding: 2rem 1.5rem;
+  overflow-y: auto;
+
+  :global(.light) & {
+    @include neo-outset;
+    background: $color-bg-light;
+  }
+
+  :global(.dark) & {
+    @include neo-outset-dark;
+  }
+}
+
+.drawerNav {
+  display: flex;
+  flex-direction: column;
+  gap: 1rem;
+  margin-top: 2rem;
+}
+
+.drawerLink {
+  font-size: 1rem;
+  font-weight: 600;
+  text-decoration: none;
+  padding: 0.5rem 0;
+
+  :global(.light) & {
+    color: $color-on-surface;
+  }
+
+  :global(.dark) & {
+    color: $color-on-surface-dark;
+  }
+}
+
+.drawerSection {
+  margin-top: 1rem;
+  padding-top: 1rem;
+  border-top: 1px solid rgba($color-outline-variant, 0.3);
+
+  h6 {
+    font-size: 0.75rem;
+    text-transform: uppercase;
+    letter-spacing: 0.1em;
+    color: $color-primary;
+    margin-bottom: 0.5rem;
+  }
+}
+
+.chevron {
+  width: 1rem;
+  height: 1rem;
+}

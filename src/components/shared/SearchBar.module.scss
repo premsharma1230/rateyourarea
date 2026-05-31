@@ -1,0 +1,80 @@
+@use "@/styles/variables" as *;
+@use "@/styles/mixins" as *;
+
+.search {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+  width: 100%;
+  transition: all 0.3s ease;
+
+  :global(.light) & {
+    @include neo-inset;
+    border-radius: $radius-full;
+    padding: 0.625rem 1.25rem;
+  }
+
+  :global(.dark) & {
+    @include neo-inset-dark;
+    border-radius: $radius-full;
+    padding: 0.625rem 1.25rem;
+  }
+
+  &.large {
+    :global(.light) & {
+      @include neo-outset;
+      border-radius: $radius-2xl;
+      padding: 0.75rem;
+    }
+
+    :global(.dark) & {
+      @include neo-outset-dark;
+      border-radius: $radius-2xl;
+      padding: 0.75rem;
+    }
+  }
+}
+
+.icon {
+  flex-shrink: 0;
+  width: 1.25rem;
+  height: 1.25rem;
+
+  :global(.light) & {
+    color: $color-on-surface-variant;
+  }
+
+  :global(.dark) & {
+    color: $color-on-surface-variant-dark;
+  }
+}
+
+.input {
+  flex: 1;
+  border: none;
+  background: transparent;
+  outline: none;
+  font-size: 0.875rem;
+  font-weight: 500;
+
+  :global(.light) & {
+    color: $color-on-surface;
+
+    &::placeholder {
+      color: rgba($color-on-surface-variant, 0.6);
+    }
+  }
+
+  :global(.dark) & {
+    color: $color-on-surface-dark;
+
+    &::placeholder {
+      color: rgba($color-on-surface-variant-dark, 0.5);
+    }
+  }
+
+  .large & {
+    font-size: 1.125rem;
+    padding: 1rem 0;
+  }
+}

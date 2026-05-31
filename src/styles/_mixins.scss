@@ -1,0 +1,136 @@
+@use "variables" as *;
+
+// ─── Light neomorphic (unchanged) ───
+@mixin neo-outset {
+  background: $color-bg-light;
+  box-shadow: $neo-shadow-outset;
+}
+
+@mixin neo-outset-sm {
+  background: $color-bg-light;
+  box-shadow: $neo-shadow-outset-sm;
+}
+
+@mixin neo-inset {
+  background: $color-bg-light;
+  box-shadow: $neo-shadow-inset;
+}
+
+@mixin neo-inset-sm {
+  background: $color-bg-light;
+  box-shadow: inset 3px 3px 6px #d1d9e6, inset -3px -3px 6px #ffffff;
+}
+
+@mixin neo-card {
+  background: $color-bg-light;
+  box-shadow: $neo-shadow-card;
+  transition: all 0.3s ease;
+
+  &:hover {
+    box-shadow: $neo-shadow-card-hover;
+  }
+}
+
+@mixin neo-primary {
+  background: $color-primary;
+  box-shadow: $neo-shadow-primary;
+
+  &:hover {
+    box-shadow: 4px 4px 8px #cbd5e1, -4px -4px 8px #ffffff;
+    transform: translateY(1px);
+  }
+}
+
+// ─── Dark neomorphic (same effect as light, dark colors) ───
+@mixin neo-outset-dark {
+  background: $color-neo-dark;
+  box-shadow: $neo-shadow-dark-outset;
+}
+
+@mixin neo-outset-sm-dark {
+  background: $color-neo-dark;
+  box-shadow: $neo-shadow-dark-outset-sm;
+}
+
+@mixin neo-inset-dark {
+  background: $color-neo-dark;
+  box-shadow: $neo-shadow-dark-inset;
+}
+
+@mixin neo-inset-sm-dark {
+  background: $color-neo-dark;
+  box-shadow: $neo-shadow-dark-inset-sm;
+}
+
+@mixin neo-card-dark {
+  background: $color-neo-dark;
+  box-shadow: $neo-shadow-dark-card;
+  transition: all 0.3s ease;
+
+  &:hover {
+    box-shadow: $neo-shadow-dark-card-hover;
+  }
+}
+
+@mixin neo-primary-dark {
+  background: $color-primary;
+  box-shadow: $neo-shadow-dark-primary;
+
+  &:hover {
+    box-shadow: 4px 4px 8px #0a3850, -4px -4px 8px #9ad4fc;
+    transform: translateY(1px);
+  }
+}
+
+// Aliases used in dark-mode blocks (same as neo-dark mixins)
+@mixin glass-panel {
+  @include neo-outset-dark;
+}
+
+@mixin glass-card {
+  @include neo-card-dark;
+}
+
+@mixin gradient-text-light {
+  background: linear-gradient(135deg, #0ea5e9 0%, #7dd3fc 100%);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
+}
+
+@mixin gradient-text-dark {
+  background: linear-gradient(135deg, #e0e8f0 0%, #7dd3fc 100%);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
+}
+
+@mixin mobile {
+  @media (max-width: 768px) {
+    @content;
+  }
+}
+
+@mixin tablet {
+  @media (max-width: 1024px) {
+    @content;
+  }
+}
+
+@mixin desktop {
+  @media (min-width: 1440px) {
+    @content;
+  }
+}
+
+@mixin flex-center {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+@mixin flex-between {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+}
