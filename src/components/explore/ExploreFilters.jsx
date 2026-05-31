@@ -8,6 +8,7 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
+import { useCommunityData } from "@/components/providers/CommunityDataProvider";
 import {
   ACTIVE_CITIES,
   EXPLORE_TYPES,
@@ -31,9 +32,10 @@ export default function ExploreFilters({
   onTypeChange,
   onQueryChange,
 }) {
-  const sectors = getSectors(city);
-  const societies = getSocieties(city, sector);
-  const pgs = getPGs(city, sector);
+  const { allAreas } = useCommunityData();
+  const sectors = getSectors(city, allAreas);
+  const societies = getSocieties(city, sector, allAreas);
+  const pgs = getPGs(city, sector, allAreas);
 
   return (
     <div className={styles.filters}>

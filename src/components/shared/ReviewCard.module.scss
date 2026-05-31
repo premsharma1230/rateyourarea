@@ -142,3 +142,168 @@
   width: 1rem;
   height: 1rem;
 }
+
+.detailed {
+  padding: 2rem 2rem 1.75rem;
+}
+
+.liveBadge {
+  position: absolute;
+  top: 1rem;
+  right: 1rem;
+  padding: 0.25rem 0.625rem;
+  border-radius: $radius-full;
+  font-size: 0.6875rem;
+  font-weight: 800;
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+  background: $color-primary;
+  color: $color-on-primary;
+}
+
+.meta {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.5rem;
+  margin-top: 0.375rem;
+}
+
+.metaItem {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.25rem;
+  font-size: 0.75rem;
+  font-weight: 600;
+  opacity: 0.75;
+}
+
+.prosCons {
+  display: grid;
+  grid-template-columns: 1fr;
+  gap: 0.875rem;
+  margin-bottom: 1.25rem;
+
+  @media (min-width: 640px) {
+    grid-template-columns: 1fr 1fr;
+  }
+}
+
+.prosBlock,
+.consBlock {
+  padding: 0.875rem 1rem;
+  border-radius: $radius-lg;
+  font-size: 0.875rem;
+  line-height: 1.5;
+
+  p {
+    margin: 0;
+  }
+}
+
+.blockTitle {
+  font-size: 0.75rem;
+  font-weight: 800;
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+  margin-bottom: 0.375rem;
+}
+
+.prosBlock {
+  :global(.light) & {
+    background: rgba(#22c55e, 0.08);
+    color: $color-on-surface;
+
+    .blockTitle {
+      color: #16a34a;
+    }
+  }
+
+  :global(.dark) & {
+    background: rgba(#22c55e, 0.12);
+    color: $color-on-surface-dark;
+
+    .blockTitle {
+      color: #4ade80;
+    }
+  }
+}
+
+.consBlock {
+  :global(.light) & {
+    background: rgba(#ef4444, 0.08);
+    color: $color-on-surface;
+
+    .blockTitle {
+      color: #dc2626;
+    }
+  }
+
+  :global(.dark) & {
+    background: rgba(#ef4444, 0.12);
+    color: $color-on-surface-dark;
+
+    .blockTitle {
+      color: #f87171;
+    }
+  }
+}
+
+.ratingGrid {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.5rem;
+  margin-bottom: 1.25rem;
+}
+
+.ratingChip {
+  display: flex;
+  align-items: center;
+  gap: 0.375rem;
+  padding: 0.375rem 0.625rem;
+  border-radius: $radius-md;
+  font-size: 0.75rem;
+  font-weight: 700;
+
+  :global(.light) & {
+    background: rgba($color-primary, 0.08);
+    color: $color-on-surface;
+  }
+
+  :global(.dark) & {
+    background: rgba($color-primary, 0.15);
+    color: $color-on-surface-dark;
+  }
+}
+
+.ratingKey {
+  opacity: 0.8;
+}
+
+.ratingVal {
+  color: $color-primary;
+}
+
+.footer {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: space-between;
+  gap: 0.75rem;
+}
+
+.recommend {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.375rem;
+  font-size: 0.8125rem;
+  font-weight: 700;
+  white-space: nowrap;
+}
+
+.recommendYes {
+  color: #22c55e;
+}
+
+.recommendNo {
+  color: #ef4444;
+}

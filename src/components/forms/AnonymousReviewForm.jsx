@@ -1,9 +1,13 @@
 "use client";
 
 import { useState } from "react";
+import Link from "next/link";
 import { motion, AnimatePresence } from "framer-motion";
 import { Star, CheckCircle } from "lucide-react";
 
+import AreaPicker from "@/components/forms/AreaPicker";
+import ReviewCard from "@/components/shared/ReviewCard";
+import { useCommunityData } from "@/components/providers/CommunityDataProvider";
 import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
 import { Button } from "@/components/ui/button";
@@ -59,8 +63,16 @@ function StarRating({ value, onChange }) {
 }
 
 export default function AnonymousReviewForm() {
+  const { submitReview } = useCommunityData();
   const [step, setStep] = useState(1);
-  const [submitted, setSubmitted] = useState(false);
+  const [submittedReview, setSubmittedReview] = useState(null);
+  const [submittedArea, setSubmittedArea] = useState(null);
+  const [areaSelection, setAreaSelection] = useState({
+    mode: "existing",
+    area: null,
+    isNew: false,
+    newAreaMeta: { type: "society", sector: "" },
+  });
   const [form, setForm] = useState({
     area: "",
     pincode: "",
@@ -89,7 +101,32 @@ export default function AnonymousReviewForm() {
     }));
   };
 
-  if (submitted) {
+  const canProceedStep1 =
+    form.area.trim().length > 0 &&
+    form.residentType &&
+    form.duration &&
+    (areaSelection.area || areaSelection.isNew);
+
+  const canSubmit =
+    form.ratings.overall > 0 &&
+    (form.pros.trim() || form.cons.trim()) &&
+    form.recommend !== null;
+
+  const handleSubmit = () => {
+    if (!canSubmit) return;
+
+    const { review, area } = submitReview({
+      form,
+      selectedArea: areaSelection.area,
+      isNewArea: areaSelection.isNew,
+      newAreaMeta: areaSelection.newAreaMeta,
+    });
+
+    setSubmittedReview(review);
+    setSubmittedArea(area);
+  };
+
+  if (submittedReview) {
     return (
       <motion.div
         className={styles.success}
@@ -98,10 +135,21 @@ export default function AnonymousReviewForm() {
       >
         <CheckCircle className={`${styles.successIcon} text-primary mx-auto`} />
         <h2 className="text-2xl font-bold mb-2">Review Submitted!</h2>
-        <p className="text-muted-foreground">
-          Thank you for helping the community. Your review is anonymous and will
-          appear shortly.
+        <p className="text-muted-foreground mb-6">
+          Thank you for helping the community. Your anonymous review is live
+          below.
         </p>
+        <div className={styles.submittedReview}>
+          <ReviewCard review={submittedReview} detailed />
+        </div>
+        <div className={styles.successActions}>
+          <Link href={`/area/${submittedArea.slug}`} className={styles.viewAreaBtn}>
+            View {submittedArea.name}
+          </Link>
+          <Link href="/explore" className={styles.exploreBtn}>
+            Explore more areas
+          </Link>
+        </div>
       </motion.div>
     );
   }
@@ -132,13 +180,10 @@ export default function AnonymousReviewForm() {
               exit={{ opacity: 0, x: -30 }}
             >
               <div className={styles.field}>
-                <Label className={styles.label}>Your Area</Label>
-                <Input
-                  placeholder="Search society, sector, or locality..."
+                <AreaPicker
                   value={form.area}
-                  onChange={(e) =>
-                    setForm({ ...form, area: e.target.value })
-                  }
+                  onChange={(area) => setForm({ ...form, area })}
+                  onAreaSelect={setAreaSelection}
                 />
               </div>
               <div className={styles.field}>
@@ -186,7 +231,11 @@ export default function AnonymousReviewForm() {
                   </SelectContent>
                 </Select>
               </div>
-              <Button className="w-full" onClick={() => setStep(2)}>
+              <Button
+                className="w-full"
+                disabled={!canProceedStep1}
+                onClick={() => setStep(2)}
+              >
                 Next →
               </Button>
             </motion.div>
@@ -220,7 +269,11 @@ export default function AnonymousReviewForm() {
                 >
                   ← Back
                 </Button>
-                <Button className={styles.navBtn} onClick={() => setStep(3)}>
+                <Button
+                  className={styles.navBtn}
+                  disabled={form.ratings.overall === 0}
+                  onClick={() => setStep(3)}
+                >
                   Next →
                 </Button>
               </div>
@@ -290,7 +343,7 @@ export default function AnonymousReviewForm() {
               </div>
               <div className={styles.preview}>
                 Will appear as: <strong>Anonymous Resident</strong> •{" "}
-                {form.area || "Your Area"} • Since 2022
+                {form.area || "Your Area"} • {form.duration || "Duration"}
               </div>
               <div className={styles.navBtns}>
                 <Button
@@ -303,7 +356,8 @@ export default function AnonymousReviewForm() {
                 <button
                   type="button"
                   className={styles.submitBtn}
-                  onClick={() => setSubmitted(true)}
+                  disabled={!canSubmit}
+                  onClick={handleSubmit}
                 >
                   🔒 Submit Anonymously
                 </button>

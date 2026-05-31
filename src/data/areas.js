@@ -480,16 +480,16 @@ export const EXPLORE_TYPES = [
   { id: "flat", label: "Flats" },
 ];
 
-export function getAreasByCity(city = "Gurugram") {
-  return areas.filter((a) => a.city === city);
+export function getAreasByCity(city = "Gurugram", source = areas) {
+  return source.filter((a) => a.city === city);
 }
 
-export function getSectors(city = "Gurugram") {
-  return areas.filter((a) => a.city === city && a.type === "sector");
+export function getSectors(city = "Gurugram", source = areas) {
+  return source.filter((a) => a.city === city && a.type === "sector");
 }
 
-export function getSocieties(city = "Gurugram", sector = "") {
-  return areas.filter(
+export function getSocieties(city = "Gurugram", sector = "", source = areas) {
+  return source.filter(
     (a) =>
       a.city === city &&
       a.type === "society" &&
@@ -497,8 +497,8 @@ export function getSocieties(city = "Gurugram", sector = "") {
   );
 }
 
-export function getPGs(city = "Gurugram", sector = "") {
-  return areas.filter(
+export function getPGs(city = "Gurugram", sector = "", source = areas) {
+  return source.filter(
     (a) =>
       a.city === city && a.type === "pg" && (!sector || a.sector === sector)
   );
@@ -521,15 +521,18 @@ function matchesQuery(area, query) {
   return haystack.includes(q);
 }
 
-export function filterAreas({
-  city = "Gurugram",
-  sector = "",
-  society = "",
-  pg = "",
-  type = "all",
-  query = "",
-} = {}) {
-  return areas.filter((area) => {
+export function filterAreas(
+  {
+    city = "Gurugram",
+    sector = "",
+    society = "",
+    pg = "",
+    type = "all",
+    query = "",
+  } = {},
+  source = areas
+) {
+  return source.filter((area) => {
     if (city && area.city !== city) return false;
     if (society) return area.slug === society && matchesQuery(area, query);
     if (pg) return area.slug === pg && matchesQuery(area, query);

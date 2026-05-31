@@ -1,0 +1,157 @@
+@use "@/styles/variables" as *;
+
+.wrapper {
+  position: relative;
+}
+
+.label {
+  display: block;
+  margin-bottom: 0.5rem;
+  font-size: 0.875rem;
+  font-weight: 700;
+}
+
+.inputWrap {
+  position: relative;
+}
+
+.icon {
+  position: absolute;
+  left: 0.875rem;
+  top: 50%;
+  transform: translateY(-50%);
+  width: 1rem;
+  height: 1rem;
+  color: $color-primary;
+  pointer-events: none;
+}
+
+.input {
+  padding-left: 2.5rem !important;
+}
+
+.dropdown {
+  position: absolute;
+  z-index: 50;
+  top: calc(100% + 0.375rem);
+  left: 0;
+  right: 0;
+  margin: 0;
+  padding: 0.375rem;
+  list-style: none;
+  border-radius: $radius-lg;
+  max-height: 16rem;
+  overflow-y: auto;
+  box-shadow: 0 12px 32px rgba(0, 0, 0, 0.18);
+
+  :global(.light) & {
+    background: #fff;
+    border: 1px solid rgba($color-on-surface-variant, 0.15);
+  }
+
+  :global(.dark) & {
+    background: #1a2332;
+    border: 1px solid rgba($color-on-surface-variant-dark, 0.2);
+  }
+}
+
+.option {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  gap: 0.125rem;
+  width: 100%;
+  padding: 0.625rem 0.75rem;
+  border: none;
+  border-radius: $radius-md;
+  background: transparent;
+  cursor: pointer;
+  text-align: left;
+  font-family: inherit;
+
+  :global(.light) & {
+    color: $color-on-surface;
+
+    &:hover {
+      background: rgba($color-primary, 0.08);
+    }
+  }
+
+  :global(.dark) & {
+    color: $color-on-surface-dark;
+
+    &:hover {
+      background: rgba($color-primary, 0.12);
+    }
+  }
+}
+
+.optionName {
+  font-weight: 700;
+  font-size: 0.875rem;
+}
+
+.optionMeta {
+  font-size: 0.75rem;
+  text-transform: capitalize;
+  opacity: 0.7;
+}
+
+.addNew {
+  flex-direction: row;
+  align-items: center;
+  gap: 0.5rem;
+  color: $color-primary;
+  font-weight: 700;
+}
+
+.newFields {
+  margin-top: 0.875rem;
+  padding: 1rem;
+  border-radius: $radius-lg;
+
+  :global(.light) & {
+    background: rgba($color-primary, 0.06);
+    border: 1px dashed rgba($color-primary, 0.25);
+  }
+
+  :global(.dark) & {
+    background: rgba($color-primary, 0.1);
+    border: 1px dashed rgba($color-primary, 0.3);
+  }
+}
+
+.newHint {
+  font-size: 0.8125rem;
+  font-weight: 600;
+  margin-bottom: 0.75rem;
+
+  :global(.light) & {
+    color: $color-on-surface-variant;
+  }
+
+  :global(.dark) & {
+    color: $color-on-surface-variant-dark;
+  }
+}
+
+.newRow {
+  display: grid;
+  grid-template-columns: 1fr;
+  gap: 0.75rem;
+
+  @media (min-width: 640px) {
+    grid-template-columns: 1fr 1fr;
+  }
+}
+
+.newField {
+  display: flex;
+  flex-direction: column;
+  gap: 0.375rem;
+}
+
+.smallLabel {
+  font-size: 0.75rem;
+  font-weight: 700;
+}

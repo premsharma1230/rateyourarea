@@ -6,6 +6,7 @@ import { useRouter, useSearchParams } from "next/navigation";
 
 import AreaCard from "@/components/shared/AreaCard";
 import ExploreFilters from "@/components/explore/ExploreFilters";
+import { useCommunityData } from "@/components/providers/CommunityDataProvider";
 import { filterAreas } from "@/data/areas";
 import listingStyles from "@/app/listing.module.scss";
 import styles from "./ExplorePage.module.scss";
@@ -15,6 +16,7 @@ const DEFAULT_CITY = "Gurugram";
 export default function ExplorePageClient() {
   const searchParams = useSearchParams();
   const router = useRouter();
+  const { allAreas } = useCommunityData();
 
   const city = searchParams.get("city") || DEFAULT_CITY;
   const sector = searchParams.get("sector") || "";
@@ -55,15 +57,18 @@ export default function ExplorePageClient() {
 
   const results = useMemo(
     () =>
-      filterAreas({
-        city: DEFAULT_CITY,
-        sector,
-        society,
-        pg,
-        type,
-        query,
-      }),
-    [sector, society, pg, type, query]
+      filterAreas(
+        {
+          city: DEFAULT_CITY,
+          sector,
+          society,
+          pg,
+          type,
+          query,
+        },
+        allAreas
+      ),
+    [allAreas, sector, society, pg, type, query]
   );
 
   return (

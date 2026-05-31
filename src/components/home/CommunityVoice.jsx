@@ -1,19 +1,29 @@
 "use client";
 
-import { useState } from "react";
+import { useMemo, useState } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import { ChevronDown } from "lucide-react";
 
-import { getReviewsByTab } from "@/data/reviews";
+import { useCommunityData } from "@/components/providers/CommunityDataProvider";
 import ReviewCard from "@/components/shared/ReviewCard";
 import styles from "./CommunityVoice.module.scss";
 
 export default function CommunityVoice() {
+  const { allReviews, ready } = useCommunityData();
   const [tab, setTab] = useState("recent");
-  const reviews = getReviewsByTab(tab === "highest" ? "highest" : "recent").slice(
-    0,
-    2
-  );
+  const [visibleCount, setVisibleCount] = useState(4);
+
+  const sortedReviews = useMemo(() => {
+    if (tab === "highest") {
+      return [...allReviews].sort((a, b) => b.rating - a.rating);
+    }
+    return allReviews;
+  }, [allReviews, tab]);
+
+  const reviews = sortedReviews.slice(0, visibleCount);
+  const hasMore = visibleCount < sortedReviews.length;
+
+  if (!ready) return null;
 
   return (
     <section className={styles.section}>
@@ -30,14 +40,20 @@ export default function CommunityVoice() {
           <button
             type="button"
             className={`${styles.tab} ${tab === "recent" ? styles.tabActive : ""}`}
-            onClick={() => setTab("recent")}
+            onClick={() => {
+              setTab("recent");
+              setVisibleCount(4);
+            }}
           >
             Most Recent
           </button>
           <button
             type="button"
             className={`${styles.tab} ${tab === "highest" ? styles.tabActive : ""}`}
-            onClick={() => setTab("highest")}
+            onClick={() => {
+              setTab("highest");
+              setVisibleCount(4);
+            }}
           >
             Highest Rated
           </button>
@@ -54,17 +70,23 @@ export default function CommunityVoice() {
           transition={{ duration: 0.3 }}
         >
           {reviews.map((review) => (
-            <ReviewCard key={review.id} review={review} />
+            <ReviewCard key={review.id} review={review} detailed />
           ))}
         </motion.div>
       </AnimatePresence>
 
-      <div className={styles.loadMoreWrap}>
-        <button type="button" className={styles.loadMore}>
-          Load More Reviews
-          <ChevronDown aria-hidden />
-        </button>
-      </div>
+      {hasMore && (
+        <div className={styles.loadMoreWrap}>
+          <button
+            type="button"
+            className={styles.loadMore}
+            onClick={() => setVisibleCount((c) => c + 4)}
+          >
+            Load More Reviews
+            <ChevronDown aria-hidden />
+          </button>
+        </div>
+      )}
     </section>
   );
 }
