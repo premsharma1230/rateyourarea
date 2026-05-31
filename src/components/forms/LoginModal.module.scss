@@ -139,6 +139,54 @@
   margin-top: 1.5rem;
 }
 
+.stepActions {
+  display: flex;
+  gap: 0.75rem;
+
+  button {
+    flex: 1;
+  }
+}
+
+.reviewList {
+  display: flex;
+  flex-direction: column;
+  gap: 0.75rem;
+  margin-bottom: 1.25rem;
+  padding: 1rem;
+  border-radius: $radius-md;
+  background: rgba($color-outline, 0.08);
+
+  :global(.dark) & {
+    background: rgba($color-outline-variant, 0.15);
+  }
+}
+
+.reviewItem {
+  display: flex;
+  flex-direction: column;
+  gap: 0.125rem;
+
+  dt {
+    font-size: 0.75rem;
+    font-weight: 600;
+    text-transform: uppercase;
+    letter-spacing: 0.03em;
+    color: $color-on-surface-variant;
+  }
+
+  dd {
+    font-size: 0.9375rem;
+    font-weight: 500;
+    margin: 0;
+  }
+}
+
+.reviewMuted {
+  color: $color-on-surface-variant;
+  font-style: italic;
+}
+
 .passwordWrap {
   position: relative;
 }

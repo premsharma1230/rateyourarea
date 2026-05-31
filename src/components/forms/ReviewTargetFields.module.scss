@@ -1,0 +1,58 @@
+@use "@/styles/variables" as *;
+
+.wrapper {
+  margin-top: 0.25rem;
+  padding: 1rem;
+  border-radius: $radius-lg;
+
+  :global(.light) & {
+    background: rgba($color-primary, 0.06);
+    border: 1px solid rgba($color-primary, 0.2);
+  }
+
+  :global(.dark) & {
+    background: rgba($color-primary, 0.1);
+    border: 1px solid rgba($color-primary, 0.25);
+  }
+}
+
+.heading {
+  font-size: 0.9375rem;
+  font-weight: 800;
+  margin-bottom: 0.25rem;
+}
+
+.hint {
+  font-size: 0.8125rem;
+  margin-bottom: 0.875rem;
+  line-height: 1.4;
+
+  :global(.light) & {
+    color: $color-on-surface-variant;
+  }
+
+  :global(.dark) & {
+    color: $color-on-surface-variant-dark;
+  }
+}
+
+.row {
+  display: grid;
+  grid-template-columns: 1fr;
+  gap: 0.75rem;
+
+  @media (min-width: 640px) {
+    grid-template-columns: 1fr 1fr;
+  }
+}
+
+.field {
+  display: flex;
+  flex-direction: column;
+  gap: 0.375rem;
+}
+
+.smallLabel {
+  font-size: 0.75rem;
+  font-weight: 700;
+}

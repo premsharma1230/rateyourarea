@@ -26,32 +26,57 @@
 
 .author {
   display: flex;
-  align-items: center;
+  align-items: flex-start;
   gap: 1rem;
+  min-width: 0;
 }
 
 .avatar {
   @include flex-center;
+  flex-shrink: 0;
   width: 3.5rem;
   height: 3.5rem;
   border-radius: $radius-full;
 
   :global(.light) & {
-    @include neo-inset;
     border-radius: $radius-2xl;
     width: 4rem;
     height: 4rem;
   }
 
   :global(.dark) & {
-    @include neo-inset-dark;
     border-radius: $radius-2xl;
     width: 4rem;
     height: 4rem;
   }
 
-  &.avatarError .avatarIcon {
-    color: $color-error;
+  &.avatarVerified {
+    background: transparent;
+    box-shadow: none;
+  }
+
+  &.avatarAnonymous {
+    :global(.light) & {
+      @include neo-inset;
+    }
+
+    :global(.dark) & {
+      @include neo-inset-dark;
+    }
+  }
+}
+
+.initials {
+  border-radius: $radius-2xl;
+  width: 3.5rem;
+  height: 3.5rem;
+  font-size: 1.125rem;
+
+  :global(.light) &,
+  :global(.dark) & {
+    width: 4rem;
+    height: 4rem;
+    font-size: 1.25rem;
   }
 }
 
@@ -60,18 +85,27 @@
   height: 1.75rem;
   color: $color-primary;
 
-  .avatarError & {
-    color: $color-error;
-
+  .avatarAnonymous & {
     :global(.light) & {
-      color: #f87171;
+      color: $color-on-surface-variant;
+    }
+
+    :global(.dark) & {
+      color: $color-on-surface-variant-dark;
     }
   }
 }
 
+.authorText {
+  min-width: 0;
+  padding-top: 0.125rem;
+}
+
 .name {
-  font-size: 1.125rem;
+  font-size: 1.0625rem;
   font-weight: 800;
+  line-height: 1.25;
+  margin: 0 0 0.125rem;
 
   :global(.light) & {
     color: $color-on-surface;
@@ -79,6 +113,20 @@
 
   :global(.dark) & {
     color: $color-on-surface-dark;
+  }
+}
+
+.reviewTarget {
+  margin-top: 0.25rem;
+  font-size: 0.8125rem;
+  font-weight: 600;
+
+  :global(.light) & {
+    color: $color-primary;
+  }
+
+  :global(.dark) & {
+    color: $color-primary;
   }
 }
 

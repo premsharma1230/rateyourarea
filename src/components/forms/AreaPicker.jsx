@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useMemo, useState } from "react";
+import { useEffect, useMemo, useRef, useState } from "react";
 import { Loader2, MapPin, Plus } from "lucide-react";
 
 import { Input } from "@/components/ui/input";
@@ -13,6 +13,8 @@ import {
   SelectValue,
 } from "@/components/ui/select";
 import { useCommunityData } from "@/components/providers/CommunityDataProvider";
+import { normalizeSectorId } from "@/data/gurugram-sectors";
+import { parseSectorFromName } from "@/lib/client-db";
 import { buildNewAreaMetaFromOsm, normalizePlaceLabel } from "@/lib/osm-geocoding";
 import styles from "./AreaPicker.module.scss";
 
@@ -24,25 +26,108 @@ const AREA_TYPES = [
   { id: "locality", label: "Locality" },
 ];
 
+const TYPE_DETAIL_FIELDS = {
+  society: {
+    label: "Society name",
+    placeholder: "e.g. DLF Phase 5",
+    optional: true,
+  },
+  sector: {
+    label: "Sector",
+    placeholder: "e.g. 56",
+    optional: false,
+  },
+  pg: {
+    label: "PG / Hostel name",
+    placeholder: "e.g. Zolo Stays Sector 56",
+    optional: true,
+  },
+  flat: {
+    label: "Flat / Apartment name",
+    placeholder: "e.g. Emaar Palm Drive",
+    optional: true,
+  },
+  locality: {
+    label: "Locality name",
+    placeholder: "e.g. Golf Course Road",
+    optional: false,
+  },
+};
+
+function resolveNewAreaName(type, detail, query) {
+  const trimmedDetail = detail.trim();
+  const trimmedQuery = query.trim();
+
+  if (type === "sector") {
+    const raw = trimmedDetail || trimmedQuery;
+    const sectorId =
+      parseSectorFromName(raw) ||
+      (/^\d+[a-z]*$/i.test(raw) ? normalizeSectorId(raw) : null);
+    return sectorId ? `Sector ${sectorId}` : raw;
+  }
+
+  return trimmedDetail || trimmedQuery;
+}
+
+function resolveSectorForMeta(type, detail, query, name) {
+  if (type === "sector") {
+    return (
+      parseSectorFromName(detail) ||
+      parseSectorFromName(query) ||
+      parseSectorFromName(name) ||
+      null
+    );
+  }
+  return parseSectorFromName(name) || parseSectorFromName(detail) || null;
+}
+
+function buildNewAreaMetaPayload(type, detail, query) {
+  const name = resolveNewAreaName(type, detail, query);
+  return {
+    type,
+    sector: resolveSectorForMeta(type, detail, query, name),
+  };
+}
+
+const EMPTY_SELECTION = {
+  mode: null,
+  area: null,
+  isNew: false,
+  newAreaMeta: null,
+};
+
 export default function AreaPicker({ value, onChange, onAreaSelect }) {
   const { allAreas } = useCommunityData();
   const [query, setQuery] = useState(value || "");
+  const [isCommitted, setIsCommitted] = useState(false);
   const [isNew, setIsNew] = useState(false);
   const [newType, setNewType] = useState("society");
-  const [newSector, setNewSector] = useState("");
+  const [newDetail, setNewDetail] = useState("");
   const [open, setOpen] = useState(false);
   const [osmSuggestions, setOsmSuggestions] = useState([]);
   const [osmLoading, setOsmLoading] = useState(false);
+  const isCommittedRef = useRef(false);
+
+  const setCommitted = (committed) => {
+    isCommittedRef.current = committed;
+    setIsCommitted(committed);
+  };
 
   useEffect(() => {
-    if (value !== undefined) {
-      setQuery(value);
-      if (value.trim()) {
-        const match = allAreas.find(
-          (a) => a.name.toLowerCase() === value.trim().toLowerCase()
-        );
-        if (match) setIsNew(false);
-      }
+    if (value === undefined) return;
+    setQuery(value);
+    if (!value.trim()) {
+      setCommitted(false);
+      setIsNew(false);
+      setNewDetail("");
+      return;
+    }
+    const match = allAreas.find(
+      (a) => a.name.toLowerCase() === value.trim().toLowerCase()
+    );
+    if (match) {
+      setCommitted(true);
+      setIsNew(false);
     }
   }, [value, allAreas]);
 
@@ -127,9 +212,27 @@ export default function AreaPicker({ value, onChange, onAreaSelect }) {
     });
   };
 
+  const resetSelection = () => {
+    setCommitted(false);
+    setIsNew(false);
+    setNewDetail("");
+    onAreaSelect?.(EMPTY_SELECTION);
+  };
+
+  const commitAsNewArea = (type = newType, detail = newDetail, q = query) => {
+    setIsNew(true);
+    setCommitted(true);
+    setOpen(false);
+    const name = resolveNewAreaName(type, detail, q);
+    onChange(name);
+    notifyNewArea(buildNewAreaMetaPayload(type, detail, q));
+  };
+
   const handleSelectExisting = (area) => {
     setQuery(area.name);
     setIsNew(false);
+    setCommitted(true);
+    setNewDetail("");
     setOpen(false);
     onChange(area.name);
     onAreaSelect?.({
@@ -141,10 +244,7 @@ export default function AreaPicker({ value, onChange, onAreaSelect }) {
   };
 
   const handleAddNew = () => {
-    setIsNew(true);
-    setOpen(false);
-    onChange(query.trim());
-    notifyNewArea({ type: newType, sector: newSector });
+    commitAsNewArea();
   };
 
   const handleSelectOsm = async (prediction) => {
@@ -183,8 +283,14 @@ export default function AreaPicker({ value, onChange, onAreaSelect }) {
 
     const meta = buildNewAreaMetaFromOsm(prediction, details);
     setIsNew(true);
+    setCommitted(true);
     setNewType(meta.type);
-    setNewSector(meta.sector || "");
+    const detail =
+      meta.type === "sector"
+        ? meta.sector || parseSectorFromName(label) || ""
+        : label;
+    setNewDetail(detail);
+    onChange(resolveNewAreaName(meta.type, detail, label));
     notifyNewArea(meta);
   };
 
@@ -193,37 +299,60 @@ export default function AreaPicker({ value, onChange, onAreaSelect }) {
     setQuery(next);
     onChange(next);
     setOpen(true);
+    setCommitted(false);
+    setIsNew(false);
+    setNewDetail("");
 
-    const match = allAreas.find(
-      (a) => a.name.toLowerCase() === next.trim().toLowerCase()
-    );
-
-    if (match) {
-      setIsNew(false);
-      onAreaSelect?.({
-        mode: "existing",
-        area: match,
-        isNew: false,
-        newAreaMeta: null,
-      });
-    } else if (next.trim().length > 2) {
-      setIsNew(true);
-      notifyNewArea({ type: newType, sector: newSector });
+    if (!next.trim()) {
+      resetSelection();
+      return;
     }
+
+    onAreaSelect?.(EMPTY_SELECTION);
   };
 
   const handleTypeChange = (type) => {
     setNewType(type);
-    if (isNew) {
-      notifyNewArea({ type, sector: newSector });
+    if (isCommitted && isNew) {
+      const name = resolveNewAreaName(type, newDetail, query);
+      onChange(name);
+      notifyNewArea(buildNewAreaMetaPayload(type, newDetail, query));
     }
   };
 
-  const handleSectorChange = (sector) => {
-    setNewSector(sector);
-    if (isNew) {
-      notifyNewArea({ type: newType, sector });
+  const handleDetailChange = (detail) => {
+    setNewDetail(detail);
+    if (isCommitted && isNew) {
+      const name = resolveNewAreaName(newType, detail, query);
+      onChange(name);
+      notifyNewArea(buildNewAreaMetaPayload(newType, detail, query));
     }
+  };
+
+  const handleBlur = () => {
+    const q = query.trim();
+    const hasSuggestions =
+      localSuggestions.length > 0 || osmSuggestions.length > 0;
+    const loading = osmLoading;
+
+    setTimeout(() => {
+      setOpen(false);
+
+      if (isCommittedRef.current) return;
+      if (q.length <= 2) return;
+
+      const match = allAreas.find(
+        (a) => a.name.toLowerCase() === q.toLowerCase()
+      );
+      if (match) {
+        handleSelectExisting(match);
+        return;
+      }
+
+      if (!hasSuggestions && !loading) {
+        commitAsNewArea(newType, newDetail, q);
+      }
+    }, 150);
   };
 
   const showAddNew =
@@ -240,6 +369,8 @@ export default function AreaPicker({ value, onChange, onAreaSelect }) {
     open &&
     (mergedSuggestions.length > 0 || showAddNew || osmLoading);
 
+  const showNewAreaPanel = isCommitted && isNew && !open;
+
   return (
     <div className={styles.wrapper}>
       <Label className={styles.label}>Your Area</Label>
@@ -250,7 +381,7 @@ export default function AreaPicker({ value, onChange, onAreaSelect }) {
           value={query}
           onChange={handleInputChange}
           onFocus={() => setOpen(true)}
-          onBlur={() => setTimeout(() => setOpen(false), 150)}
+          onBlur={handleBlur}
           className={styles.input}
         />
       </div>
@@ -313,7 +444,7 @@ export default function AreaPicker({ value, onChange, onAreaSelect }) {
         </ul>
       )}
 
-      {isNew && query.trim().length > 2 && (
+      {showNewAreaPanel && (
         <div className={styles.newFields}>
           <p className={styles.newHint}>
             New area — it will be saved for everyone in the dropdown.
@@ -334,16 +465,17 @@ export default function AreaPicker({ value, onChange, onAreaSelect }) {
                 </SelectContent>
               </Select>
             </div>
-            {newType !== "sector" && newType !== "locality" && (
-              <div className={styles.newField}>
-                <Label className={styles.smallLabel}>Sector (optional)</Label>
-                <Input
-                  placeholder="e.g. 56"
-                  value={newSector}
-                  onChange={(e) => handleSectorChange(e.target.value)}
-                />
-              </div>
-            )}
+            <div className={styles.newField}>
+              <Label className={styles.smallLabel}>
+                {TYPE_DETAIL_FIELDS[newType].label}
+                {TYPE_DETAIL_FIELDS[newType].optional ? " (optional)" : ""}
+              </Label>
+              <Input
+                placeholder={TYPE_DETAIL_FIELDS[newType].placeholder}
+                value={newDetail}
+                onChange={(e) => handleDetailChange(e.target.value)}
+              />
+            </div>
           </div>
         </div>
       )}

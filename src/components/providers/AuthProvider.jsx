@@ -8,44 +8,64 @@ import {
   useState,
 } from "react";
 
-import {
-  getStoredUser,
-  loginUser as persistLogin,
-  logoutUser as persistLogout,
-} from "@/lib/auth";
+import { getUser, onAuthChange, signOut } from "@/backend/api/auth";
 
 const AuthContext = createContext(null);
+
+function mapSupabaseUser(supabaseUser) {
+  if (!supabaseUser) return null;
+
+  const meta = supabaseUser.user_metadata || {};
+  const email = supabaseUser.email || "";
+  const name =
+    meta.full_name ||
+    meta.name ||
+    email.split("@")[0] ||
+    "Resident";
+
+  return {
+    id: supabaseUser.id,
+    email,
+    name: String(name).trim() || "Resident",
+    loggedInAt: supabaseUser.last_sign_in_at || new Date().toISOString(),
+  };
+}
 
 export function AuthProvider({ children }) {
   const [user, setUser] = useState(null);
   const [ready, setReady] = useState(false);
 
-  const refresh = useCallback(() => {
-    setUser(getStoredUser());
+  const refresh = useCallback(async () => {
+    const supabaseUser = await getUser();
+    setUser(mapSupabaseUser(supabaseUser));
   }, []);
 
   useEffect(() => {
-    refresh();
-    setReady(true);
+    let mounted = true;
 
-    const onUpdate = () => refresh();
-    window.addEventListener("rateyourarea-auth-update", onUpdate);
-    window.addEventListener("storage", onUpdate);
+    (async () => {
+      await refresh();
+      if (mounted) setReady(true);
+    })();
+
+    const { data: listener } = onAuthChange((supabaseUser) => {
+      setUser(mapSupabaseUser(supabaseUser));
+      setReady(true);
+    });
 
     return () => {
-      window.removeEventListener("rateyourarea-auth-update", onUpdate);
-      window.removeEventListener("storage", onUpdate);
+      mounted = false;
+      listener?.subscription?.unsubscribe();
     };
   }, [refresh]);
 
-  const login = useCallback((payload) => {
-    const next = persistLogin(payload);
-    setUser(next);
-    return next;
-  }, []);
+  const login = useCallback(async () => {
+    await refresh();
+    return user;
+  }, [refresh, user]);
 
-  const logout = useCallback(() => {
-    persistLogout();
+  const logout = useCallback(async () => {
+    await signOut();
     setUser(null);
   }, []);
 

@@ -5,33 +5,64 @@ import {
   Star,
   ThumbsDown,
   ThumbsUp,
-  User,
+  UserRound,
 } from "lucide-react";
 
+import { useAuth } from "@/components/providers/AuthProvider";
+import UserInitials from "@/components/shared/UserInitials";
 import { textToTags } from "@/lib/area-detail-utils";
+import {
+  getReviewAuthorName,
+  getReviewDisplayName,
+  isReviewAnonymous,
+} from "@/lib/review-display";
 import styles from "./AreaDetailReviewCard.module.scss";
 
 export default function AreaDetailReviewCard({ review }) {
+  const { user } = useAuth();
+  const anonymous = isReviewAnonymous(review);
+  const displayName = getReviewDisplayName(review, user);
+  const authorName = getReviewAuthorName(review, user);
   const prosTags = textToTags(review.pros);
   const consTags = textToTags(review.cons);
   const subtitle = [review.residentLabel, review.duration]
     .filter(Boolean)
     .join(" • ");
+  const StatusIcon = anonymous ? UserRound : BadgeCheck;
 
   return (
     <article className={styles.card}>
       <div className={styles.header}>
         <div className={styles.author}>
-          <div className={styles.avatar}>
-            <User className="size-5" aria-hidden />
+          <div
+            className={`${styles.avatar} ${anonymous ? styles.avatarAnonymous : styles.avatarVerified}`}
+          >
+            {anonymous ? (
+              <UserRound className={styles.avatarIcon} aria-hidden />
+            ) : (
+              <UserInitials
+                name={displayName || "Resident"}
+                email={user?.email}
+                size="md"
+                className={styles.initials}
+              />
+            )}
           </div>
           <div>
             <div className={styles.nameRow}>
-              <h4 className={styles.name}>
-                {review.isUserReview ? "Verified Resident" : "Anonymous Resident"}
-              </h4>
-              <BadgeCheck className={styles.verifiedIcon} aria-hidden />
+              <h4 className={styles.name}>{authorName}</h4>
+              <StatusIcon
+                className={`${styles.statusIcon} ${anonymous ? styles.statusAnonymous : styles.statusVerified}`}
+                aria-hidden
+              />
             </div>
+            <p
+              className={`${styles.statusBadge} ${anonymous ? styles.statusAnonymous : styles.statusVerified}`}
+            >
+              {anonymous
+                ? `Anonymous • ${review.areaName || "Area"}`
+                : `Verified • ${review.areaName || "Area"}`}
+            </p>
             {subtitle && <p className={styles.subtitle}>{subtitle}</p>}
           </div>
         </div>

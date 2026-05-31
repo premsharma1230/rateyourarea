@@ -26,7 +26,7 @@ export const metadata = {
 
 export default function BlogPage() {
   return (
-    <div className={styles.page}>
+    <div className={`${styles.page} hidden`}>
       <header className={styles.header}>
         <h1 className={styles.title}>Blog</h1>
         <p className={styles.subtitle}>

@@ -1,0 +1,41 @@
+@use "@/styles/variables" as *;
+
+.avatar {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+  border-radius: $radius-full;
+  font-weight: 800;
+  letter-spacing: 0.02em;
+  line-height: 1;
+  text-transform: uppercase;
+
+  :global(.light) & {
+    background: rgba($color-primary, 0.2);
+    color: $color-blue-deep;
+  }
+
+  :global(.dark) & {
+    background: rgba($color-primary, 0.28);
+    color: $color-on-surface-dark;
+  }
+}
+
+.sm {
+  width: 1.625rem;
+  height: 1.625rem;
+  font-size: 0.625rem;
+}
+
+.md {
+  width: 2rem;
+  height: 2rem;
+  font-size: 0.6875rem;
+}
+
+.lg {
+  width: 4.5rem;
+  height: 4.5rem;
+  font-size: 1.375rem;
+}

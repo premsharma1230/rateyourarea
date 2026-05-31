@@ -43,14 +43,40 @@
   border-radius: $radius-full;
   flex-shrink: 0;
 
-  :global(.light) & {
-    background: rgba($color-blue-deep, 0.08);
-    color: $color-blue-deep;
+  &.avatarVerified {
+    background: transparent;
+    padding: 0;
   }
 
-  :global(.dark) & {
-    background: rgba($color-primary, 0.12);
-    color: $color-primary;
+  &.avatarAnonymous {
+    :global(.light) & {
+      background: rgba($color-blue-deep, 0.08);
+      color: $color-blue-deep;
+    }
+
+    :global(.dark) & {
+      background: rgba($color-primary, 0.12);
+      color: $color-primary;
+    }
+  }
+}
+
+.initials {
+  border-radius: $radius-full;
+}
+
+.avatarIcon {
+  width: 1.25rem;
+  height: 1.25rem;
+
+  .avatarAnonymous & {
+    :global(.light) & {
+      color: $color-on-surface-variant;
+    }
+
+    :global(.dark) & {
+      color: rgba($color-on-surface-variant-dark, 0.85);
+    }
   }
 }
 
@@ -63,6 +89,8 @@
 .name {
   font-size: 0.9375rem;
   font-weight: 800;
+  line-height: 1.25;
+  margin: 0;
 
   :global(.light) & {
     color: #0f172a;
@@ -73,10 +101,32 @@
   }
 }
 
-.verifiedIcon {
+.statusIcon {
   width: 1rem;
   height: 1rem;
-  color: $color-blue-deep;
+  flex-shrink: 0;
+}
+
+.statusBadge {
+  margin-top: 0.125rem;
+  font-size: 0.75rem;
+  font-weight: 700;
+}
+
+.statusAnonymous {
+  color: $color-on-surface-variant;
+
+  :global(.dark) & {
+    color: rgba($color-on-surface-variant-dark, 0.85);
+  }
+}
+
+.statusVerified {
+  color: #16a34a;
+
+  :global(.dark) & {
+    color: #4ade80;
+  }
 }
 
 .subtitle {
