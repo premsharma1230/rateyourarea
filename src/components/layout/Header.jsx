@@ -14,32 +14,10 @@ import { LOGO_URL } from "@/lib/constants";
 import {
   DropdownMenu,
   DropdownMenuContent,
-  DropdownMenuGroup,
   DropdownMenuItem,
-  DropdownMenuLabel,
-  DropdownMenuSeparator,
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
 import styles from "./Header.module.scss";
-
-const exploreMenu = {
-  cities: ["Gurugram", "Delhi", "Noida", "Bangalore", "Mumbai"],
-  types: ["Societies", "Sectors", "PG/Hostels", "Builders"],
-};
-
-const topRatedMenu = [
-  "Top Societies",
-  "Top Sectors",
-  "Top PGs",
-  "Best Builders 🏆",
-];
-
-const worstRatedMenu = [
-  "Worst Societies",
-  "Most Complained",
-  "Builder Blacklist ⚠️",
-  "RERA Tracker",
-];
 
 const blogMenu = [
   "Area Guides",
@@ -66,6 +44,7 @@ export default function Header() {
   const [loginOpen, setLoginOpen] = useState(false);
 
   const isHome = pathname === "/";
+  const isExplore = pathname === "/explore";
 
   return (
     <>
@@ -94,42 +73,12 @@ export default function Header() {
             >
               Home
             </Link>
-            <NavDropdown label="Explore">
-              <DropdownMenuGroup>
-                <DropdownMenuLabel>By City</DropdownMenuLabel>
-                {exploreMenu.cities.map((city) => (
-                  <DropdownMenuItem key={city} render={<Link href="/explore" />}>
-                    {city}
-                  </DropdownMenuItem>
-                ))}
-              </DropdownMenuGroup>
-              <DropdownMenuSeparator />
-              <DropdownMenuGroup>
-                <DropdownMenuLabel>By Type</DropdownMenuLabel>
-                {exploreMenu.types.map((type) => (
-                  <DropdownMenuItem key={type} render={<Link href="/explore" />}>
-                    {type}
-                  </DropdownMenuItem>
-                ))}
-              </DropdownMenuGroup>
-            </NavDropdown>
-            <NavDropdown label="Top Rated">
-              {topRatedMenu.map((item) => (
-                <DropdownMenuItem key={item} render={<Link href="/top-rated" />}>
-                  {item}
-                </DropdownMenuItem>
-              ))}
-            </NavDropdown>
-            <NavDropdown label="Worst Rated">
-              {worstRatedMenu.map((item) => (
-                <DropdownMenuItem
-                  key={item}
-                  render={<Link href="/worst-rated" />}
-                >
-                  {item}
-                </DropdownMenuItem>
-              ))}
-            </NavDropdown>
+            <Link
+              href="/explore"
+              className={`${styles.navLink} ${isExplore ? styles.active : ""}`}
+            >
+              Explore
+            </Link>
             <NavDropdown label="Blog">
               {blogMenu.map((item) => (
                 <DropdownMenuItem key={item} render={<Link href="/blog" />}>

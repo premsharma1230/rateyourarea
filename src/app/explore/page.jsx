@@ -1,32 +1,17 @@
-import Link from "next/link";
+import { Suspense } from "react";
 
-import { areas } from "@/data/areas";
-import AreaCard from "@/components/shared/AreaCard";
-import styles from "../listing.module.scss";
+import ExplorePageClient from "@/components/explore/ExplorePageClient";
 
 export const metadata = {
   title: "Explore Areas | RateYourArea",
-  description: "Browse societies, sectors, and localities across Indian cities.",
+  description:
+    "Browse societies, sectors, PGs and flats in Gurugram — rated by real residents.",
 };
 
 export default function ExplorePage() {
   return (
-    <div className={styles.page}>
-      <header className={styles.header}>
-        <h1 className={styles.title}>Explore Areas</h1>
-        <p className={styles.subtitle}>
-          Discover localities, societies, and sectors rated by real residents.
-        </p>
-      </header>
-      <div className={styles.grid}>
-        {areas.map((area, index) => (
-          <AreaCard key={area.slug} area={area} index={index} />
-        ))}
-      </div>
-      <p className={styles.footer}>
-        <Link href="/review">Can&apos;t find your area?</Link> — add a review to
-        put it on the map.
-      </p>
-    </div>
+    <Suspense fallback={null}>
+      <ExplorePageClient />
+    </Suspense>
   );
 }

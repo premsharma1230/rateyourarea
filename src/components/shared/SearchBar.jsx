@@ -8,6 +8,8 @@ export default function SearchBar({
   placeholder = "Search area, city...",
   className = "",
   size = "default",
+  value,
+  onChange,
 }) {
   return (
     <div className={`${styles.search} ${styles[size]} ${className}`}>
@@ -17,6 +19,8 @@ export default function SearchBar({
         placeholder={placeholder}
         className={styles.input}
         aria-label="Search areas"
+        value={value}
+        onChange={onChange}
       />
     </div>
   );
