@@ -1,7 +1,7 @@
 "use client";
 
 import { useEffect, useMemo, useState } from "react";
-import { MapPin, Plus } from "lucide-react";
+import { Loader2, MapPin, Plus } from "lucide-react";
 
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
@@ -13,6 +13,7 @@ import {
   SelectValue,
 } from "@/components/ui/select";
 import { useCommunityData } from "@/components/providers/CommunityDataProvider";
+import { buildNewAreaMetaFromGoogle, normalizePlaceLabel } from "@/lib/google-places";
 import styles from "./AreaPicker.module.scss";
 
 const AREA_TYPES = [
@@ -30,6 +31,9 @@ export default function AreaPicker({ value, onChange, onAreaSelect }) {
   const [newType, setNewType] = useState("society");
   const [newSector, setNewSector] = useState("");
   const [open, setOpen] = useState(false);
+  const [googleSuggestions, setGoogleSuggestions] = useState([]);
+  const [googleLoading, setGoogleLoading] = useState(false);
+  const [googleEnabled, setGoogleEnabled] = useState(true);
 
   useEffect(() => {
     if (value !== undefined) {
@@ -43,9 +47,46 @@ export default function AreaPicker({ value, onChange, onAreaSelect }) {
     }
   }, [value, allAreas]);
 
-  const suggestions = useMemo(() => {
+  useEffect(() => {
+    const q = query.trim();
+    if (!googleEnabled || q.length < 2) {
+      setGoogleSuggestions([]);
+      setGoogleLoading(false);
+      return undefined;
+    }
+
+    const timer = setTimeout(async () => {
+      setGoogleLoading(true);
+      try {
+        const response = await fetch(
+          `/api/places/autocomplete?input=${encodeURIComponent(q)}`
+        );
+        const data = await response.json();
+
+        if (response.status === 503) {
+          setGoogleEnabled(false);
+          setGoogleSuggestions([]);
+          return;
+        }
+
+        if (response.ok) {
+          setGoogleSuggestions(data.predictions || []);
+        } else {
+          setGoogleSuggestions([]);
+        }
+      } catch {
+        setGoogleSuggestions([]);
+      } finally {
+        setGoogleLoading(false);
+      }
+    }, 350);
+
+    return () => clearTimeout(timer);
+  }, [query, googleEnabled]);
+
+  const localSuggestions = useMemo(() => {
     const q = query.trim().toLowerCase();
-    if (!q) return allAreas.slice(0, 8);
+    if (!q) return allAreas.slice(0, 6);
     return allAreas
       .filter((area) => {
         const haystack = [area.name, area.type, area.sector ? `sector ${area.sector}` : ""]
@@ -53,14 +94,46 @@ export default function AreaPicker({ value, onChange, onAreaSelect }) {
           .toLowerCase();
         return haystack.includes(q);
       })
-      .slice(0, 8);
+      .slice(0, 6);
   }, [allAreas, query]);
+
+  const mergedSuggestions = useMemo(() => {
+    const seen = new Set();
+    const items = [];
+
+    for (const area of localSuggestions) {
+      const key = normalizePlaceLabel(area.name);
+      if (seen.has(key)) continue;
+      seen.add(key);
+      items.push({ kind: "local", area, key: area.slug });
+    }
+
+    for (const prediction of googleSuggestions) {
+      const nameKey = normalizePlaceLabel(prediction.mainText);
+      const descKey = normalizePlaceLabel(prediction.description);
+      if (seen.has(nameKey) || seen.has(descKey)) continue;
+      seen.add(nameKey);
+      seen.add(descKey);
+      items.push({ kind: "google", prediction, key: prediction.placeId });
+    }
+
+    return items.slice(0, 10);
+  }, [localSuggestions, googleSuggestions]);
 
   const exactMatch = useMemo(
     () =>
       allAreas.find((a) => a.name.toLowerCase() === query.trim().toLowerCase()),
     [allAreas, query]
   );
+
+  const notifyNewArea = (meta) => {
+    onAreaSelect?.({
+      mode: "new",
+      area: null,
+      isNew: true,
+      newAreaMeta: meta,
+    });
+  };
 
   const handleSelectExisting = (area) => {
     setQuery(area.name);
@@ -79,12 +152,46 @@ export default function AreaPicker({ value, onChange, onAreaSelect }) {
     setIsNew(true);
     setOpen(false);
     onChange(query.trim());
-    onAreaSelect?.({
-      mode: "new",
-      area: null,
-      isNew: true,
-      newAreaMeta: { type: newType, sector: newSector },
-    });
+    notifyNewArea({ type: newType, sector: newSector });
+  };
+
+  const handleSelectGoogle = async (prediction) => {
+    const label = prediction.mainText;
+    setQuery(label);
+    setOpen(false);
+    onChange(label);
+
+    const localByPlace = allAreas.find((a) => a.googlePlaceId === prediction.placeId);
+    if (localByPlace) {
+      handleSelectExisting(localByPlace);
+      return;
+    }
+
+    const localByName = allAreas.find(
+      (a) => a.name.toLowerCase() === label.trim().toLowerCase()
+    );
+    if (localByName) {
+      handleSelectExisting(localByName);
+      return;
+    }
+
+    let details = null;
+    try {
+      const response = await fetch(
+        `/api/places/details?placeId=${encodeURIComponent(prediction.placeId)}`
+      );
+      if (response.ok) {
+        details = await response.json();
+      }
+    } catch {
+      // Fall back to autocomplete metadata only.
+    }
+
+    const meta = buildNewAreaMetaFromGoogle(prediction, details);
+    setIsNew(true);
+    setNewType(meta.type);
+    setNewSector(meta.sector || "");
+    notifyNewArea(meta);
   };
 
   const handleInputChange = (e) => {
@@ -107,43 +214,37 @@ export default function AreaPicker({ value, onChange, onAreaSelect }) {
       });
     } else if (next.trim().length > 2) {
       setIsNew(true);
-      onAreaSelect?.({
-        mode: "new",
-        area: null,
-        isNew: true,
-        newAreaMeta: { type: newType, sector: newSector },
-      });
+      notifyNewArea({ type: newType, sector: newSector });
     }
   };
 
   const handleTypeChange = (type) => {
     setNewType(type);
     if (isNew) {
-      onAreaSelect?.({
-        mode: "new",
-        area: null,
-        isNew: true,
-        newAreaMeta: { type, sector: newSector },
-      });
+      notifyNewArea({ type, sector: newSector });
     }
   };
 
   const handleSectorChange = (sector) => {
     setNewSector(sector);
     if (isNew) {
-      onAreaSelect?.({
-        mode: "new",
-        area: null,
-        isNew: true,
-        newAreaMeta: { type: newType, sector },
-      });
+      notifyNewArea({ type: newType, sector });
     }
   };
 
   const showAddNew =
-    query.trim().length > 2 && !exactMatch && !suggestions.some(
-      (s) => s.name.toLowerCase() === query.trim().toLowerCase()
-    );
+    query.trim().length > 2 &&
+    !exactMatch &&
+    !mergedSuggestions.some((item) => {
+      if (item.kind === "local") {
+        return item.area.name.toLowerCase() === query.trim().toLowerCase();
+      }
+      return item.prediction.mainText.toLowerCase() === query.trim().toLowerCase();
+    });
+
+  const showDropdown =
+    open &&
+    (mergedSuggestions.length > 0 || showAddNew || googleLoading);
 
   return (
     <div className={styles.wrapper}>
@@ -160,24 +261,49 @@ export default function AreaPicker({ value, onChange, onAreaSelect }) {
         />
       </div>
 
-      {open && (suggestions.length > 0 || showAddNew) && (
+      {showDropdown && (
         <ul className={styles.dropdown}>
-          {suggestions.map((area) => (
-            <li key={area.slug}>
-              <button
-                type="button"
-                className={styles.option}
-                onMouseDown={() => handleSelectExisting(area)}
-              >
-                <span className={styles.optionName}>{area.name}</span>
-                <span className={styles.optionMeta}>
-                  {area.type}
-                  {area.sector ? ` • Sector ${area.sector}` : ""}
-                  {area.isCustom ? " • New" : ""}
-                </span>
-              </button>
+          {mergedSuggestions.map((item) =>
+            item.kind === "local" ? (
+              <li key={item.key}>
+                <button
+                  type="button"
+                  className={styles.option}
+                  onMouseDown={() => handleSelectExisting(item.area)}
+                >
+                  <span className={styles.optionName}>{item.area.name}</span>
+                  <span className={styles.optionMeta}>
+                    {item.area.type}
+                    {item.area.sector ? ` • Sector ${item.area.sector}` : ""}
+                    {item.area.isCustom ? " • Community" : ""}
+                  </span>
+                </button>
+              </li>
+            ) : (
+              <li key={item.key}>
+                <button
+                  type="button"
+                  className={`${styles.option} ${styles.googleOption}`}
+                  onMouseDown={() => handleSelectGoogle(item.prediction)}
+                >
+                  <span className={styles.optionName}>{item.prediction.mainText}</span>
+                  <span className={styles.optionMeta}>
+                    {item.prediction.secondaryText || "Gurugram"}
+                    {" • "}
+                    <span className={styles.googleBadge}>Google Maps</span>
+                  </span>
+                </button>
+              </li>
+            )
+          )}
+
+          {googleLoading && mergedSuggestions.length === 0 && (
+            <li className={styles.loadingRow}>
+              <Loader2 className={`size-4 ${styles.spinner}`} aria-hidden />
+              Searching Google Maps…
             </li>
-          ))}
+          )}
+
           {showAddNew && (
             <li>
               <button

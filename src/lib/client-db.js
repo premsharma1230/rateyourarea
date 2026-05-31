@@ -17,7 +17,16 @@ export function parseSectorFromName(name) {
   return match ? match[1] : null;
 }
 
-export function createCustomArea({ name, type, sector = null, city = "Gurugram" }) {
+export function createCustomArea({
+  name,
+  type,
+  sector = null,
+  city = "Gurugram",
+  googlePlaceId = null,
+  address = null,
+  lat = null,
+  lng = null,
+}) {
   const baseSlug = slugify(name);
   const existing = getCustomAreas();
   let slug = baseSlug;
@@ -34,7 +43,10 @@ export function createCustomArea({ name, type, sector = null, city = "Gurugram" 
     slug,
     name: name.trim(),
     city,
-    sector: type === "sector" ? parsedSector || slugify(name).replace("sector-", "") : parsedSector,
+    sector:
+      type === "sector"
+        ? parsedSector || slugify(name).replace("sector-", "")
+        : parsedSector,
     type,
     overallRating: 0,
     totalReviews: 0,
@@ -49,12 +61,18 @@ export function createCustomArea({ name, type, sector = null, city = "Gurugram" 
       builderTrust: 0,
     },
     reraComplaints: 0,
-    description: `Community-added ${type} in ${city}.`,
+    description: googlePlaceId
+      ? `Listed via Google Maps in ${city}.`
+      : `Community-added ${type} in ${city}.`,
     image: DEFAULT_IMAGE,
-    tags: ["Community added"],
+    tags: googlePlaceId ? ["Google Maps", "Community added"] : ["Community added"],
     pros: [],
     cons: [],
     isCustom: true,
+    googlePlaceId,
+    address,
+    lat,
+    lng,
     createdAt: new Date().toISOString(),
   };
 }

@@ -68,6 +68,10 @@ export function CommunityDataProvider({ children }) {
           name: form.area.trim(),
           type: newAreaMeta.type,
           sector: newAreaMeta.sector || null,
+          googlePlaceId: newAreaMeta.googlePlaceId || null,
+          address: newAreaMeta.address || null,
+          lat: newAreaMeta.lat ?? null,
+          lng: newAreaMeta.lng ?? null,
         });
         saveCustomArea(customArea);
         area = customArea;

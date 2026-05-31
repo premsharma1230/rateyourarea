@@ -1,4 +1,7 @@
-export const areas = [
+import { gurugramSectorAreas, normalizeSectorId, sortSectorIds } from "./gurugram-sectors";
+import { gurugramSocietyAreas } from "./gurugram-societies";
+
+const featuredAreas = [
   {
     slug: "golf-course-road",
     name: "Golf Course Road",
@@ -464,6 +467,16 @@ export const areas = [
   },
 ];
 
+const featuredSlugs = new Set(featuredAreas.map((area) => area.slug));
+const sectorSeedAreas = gurugramSectorAreas.filter(
+  (area) => !featuredSlugs.has(area.slug)
+);
+const societySeedAreas = gurugramSocietyAreas.filter(
+  (area) => !featuredSlugs.has(area.slug)
+);
+
+export const areas = [...featuredAreas, ...sectorSeedAreas, ...societySeedAreas];
+
 export function getAreaBySlug(slug) {
   return areas.find((a) => a.slug === slug);
 }
@@ -485,22 +498,41 @@ export function getAreasByCity(city = "Gurugram", source = areas) {
 }
 
 export function getSectors(city = "Gurugram", source = areas) {
-  return source.filter((a) => a.city === city && a.type === "sector");
+  return source
+    .filter((a) => a.city === city && a.type === "sector")
+    .sort((a, b) => sortSectorIds(a.sector, b.sector));
 }
 
 export function getSocieties(city = "Gurugram", sector = "", source = areas) {
-  return source.filter(
-    (a) =>
-      a.city === city &&
-      a.type === "society" &&
-      (!sector || a.sector === sector)
-  );
+  return source
+    .filter(
+      (a) =>
+        a.city === city &&
+        a.type === "society" &&
+        (!sector || a.sector === sector)
+    )
+    .sort((a, b) => a.name.localeCompare(b.name));
 }
 
 export function getPGs(city = "Gurugram", sector = "", source = areas) {
-  return source.filter(
-    (a) =>
-      a.city === city && a.type === "pg" && (!sector || a.sector === sector)
+  return source
+    .filter(
+      (a) => a.city === city && a.type === "pg" && (!sector || a.sector === sector)
+    )
+    .sort((a, b) => a.name.localeCompare(b.name));
+}
+
+function matchesNamedSelection(area, param, source, expectedType) {
+  if (!param) return true;
+
+  const slugMatch = source.some((item) => item.slug === param);
+  if (slugMatch) {
+    return area.slug === param;
+  }
+
+  return (
+    area.type === expectedType &&
+    area.name.toLowerCase().includes(param.trim().toLowerCase())
   );
 }
 
@@ -534,11 +566,21 @@ export function filterAreas(
 ) {
   return source.filter((area) => {
     if (city && area.city !== city) return false;
-    if (society) return area.slug === society && matchesQuery(area, query);
-    if (pg) return area.slug === pg && matchesQuery(area, query);
+
+    if (society) {
+      if (!matchesNamedSelection(area, society, source, "society")) return false;
+      if (sector && area.sector !== normalizeSectorId(sector)) return false;
+      return matchesQuery(area, query);
+    }
+
+    if (pg) {
+      if (!matchesNamedSelection(area, pg, source, "pg")) return false;
+      if (sector && area.sector !== normalizeSectorId(sector)) return false;
+      return matchesQuery(area, query);
+    }
 
     if (sector) {
-      if (area.sector !== sector) return false;
+      if (area.sector !== normalizeSectorId(sector)) return false;
       if (!["society", "pg", "flat"].includes(area.type)) return false;
     }
 

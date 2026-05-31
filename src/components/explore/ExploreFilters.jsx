@@ -1,13 +1,7 @@
 "use client";
 
 import SearchBar from "@/components/shared/SearchBar";
-import {
-  Select,
-  SelectContent,
-  SelectItem,
-  SelectTrigger,
-  SelectValue,
-} from "@/components/ui/select";
+import SearchableFilter from "@/components/shared/SearchableFilter";
 import { useCommunityData } from "@/components/providers/CommunityDataProvider";
 import {
   ACTIVE_CITIES,
@@ -16,6 +10,7 @@ import {
   getSectors,
   getSocieties,
 } from "@/data/areas";
+import { normalizeSectorId } from "@/data/gurugram-sectors";
 import styles from "./ExplorePage.module.scss";
 
 export default function ExploreFilters({
@@ -37,84 +32,68 @@ export default function ExploreFilters({
   const societies = getSocieties(city, sector, allAreas);
   const pgs = getPGs(city, sector, allAreas);
 
+  const cityOptions = ACTIVE_CITIES.map((item) => ({
+    value: item.id,
+    label: `${item.label} (${item.aliases[0]})`,
+  }));
+
+  const sectorOptions = sectors.map((item) => ({
+    value: item.sector,
+    label: item.name,
+    meta: "Sector",
+  }));
+
+  const societyOptions = societies.map((item) => ({
+    value: item.slug,
+    label: item.name,
+    meta: item.sector ? `Sector ${item.sector}` : "Society",
+  }));
+
+  const pgOptions = pgs.map((item) => ({
+    value: item.slug,
+    label: item.name,
+    meta: item.sector ? `Sector ${item.sector}` : "PG",
+  }));
+
   return (
     <div className={styles.filters}>
       <div className={styles.filterRow}>
-        <div className={styles.field}>
-          <span className={styles.label}>City</span>
-          <Select value={city} onValueChange={onCityChange}>
-            <SelectTrigger className={styles.selectTrigger}>
-              <SelectValue placeholder="Select city" />
-            </SelectTrigger>
-            <SelectContent>
-              {ACTIVE_CITIES.map((c) => (
-                <SelectItem key={c.id} value={c.id}>
-                  {c.label} ({c.aliases[0]})
-                </SelectItem>
-              ))}
-            </SelectContent>
-          </Select>
-        </div>
+        <SearchableFilter
+          label="City"
+          value={city}
+          onChange={onCityChange}
+          options={cityOptions}
+          placeholder="Type city…"
+          allLabel="All cities"
+          allowCustom={false}
+        />
 
-        <div className={styles.field}>
-          <span className={styles.label}>Sector</span>
-          <Select
-            value={sector || "all"}
-            onValueChange={(v) => onSectorChange(v === "all" ? "" : v)}
-          >
-            <SelectTrigger className={styles.selectTrigger}>
-              <SelectValue placeholder="All sectors" />
-            </SelectTrigger>
-            <SelectContent>
-              <SelectItem value="all">All sectors</SelectItem>
-              {sectors.map((s) => (
-                <SelectItem key={s.slug} value={s.sector}>
-                  {s.name}
-                </SelectItem>
-              ))}
-            </SelectContent>
-          </Select>
-        </div>
+        <SearchableFilter
+          label="Sector"
+          value={sector}
+          onChange={(value) => onSectorChange(value ? normalizeSectorId(value) : "")}
+          options={sectorOptions}
+          placeholder="Type sector e.g. 21A"
+          allLabel="All sectors"
+        />
 
-        <div className={styles.field}>
-          <span className={styles.label}>Society</span>
-          <Select
-            value={society || "all"}
-            onValueChange={(v) => onSocietyChange(v === "all" ? "" : v)}
-          >
-            <SelectTrigger className={styles.selectTrigger}>
-              <SelectValue placeholder="All societies" />
-            </SelectTrigger>
-            <SelectContent>
-              <SelectItem value="all">All societies</SelectItem>
-              {societies.map((s) => (
-                <SelectItem key={s.slug} value={s.slug}>
-                  {s.name}
-                </SelectItem>
-              ))}
-            </SelectContent>
-          </Select>
-        </div>
+        <SearchableFilter
+          label="Society"
+          value={society}
+          onChange={onSocietyChange}
+          options={societyOptions}
+          placeholder="Type society name…"
+          allLabel="All societies"
+        />
 
-        <div className={styles.field}>
-          <span className={styles.label}>PG</span>
-          <Select
-            value={pg || "all"}
-            onValueChange={(v) => onPGChange(v === "all" ? "" : v)}
-          >
-            <SelectTrigger className={styles.selectTrigger}>
-              <SelectValue placeholder="All PGs" />
-            </SelectTrigger>
-            <SelectContent>
-              <SelectItem value="all">All PGs</SelectItem>
-              {pgs.map((p) => (
-                <SelectItem key={p.slug} value={p.slug}>
-                  {p.name}
-                </SelectItem>
-              ))}
-            </SelectContent>
-          </Select>
-        </div>
+        <SearchableFilter
+          label="PG"
+          value={pg}
+          onChange={onPGChange}
+          options={pgOptions}
+          placeholder="Type PG name…"
+          allLabel="All PGs"
+        />
 
         <div className={`${styles.field} ${styles.searchWrap}`}>
           <span className={styles.label}>Search</span>

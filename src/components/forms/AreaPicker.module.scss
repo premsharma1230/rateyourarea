@@ -105,6 +105,30 @@
   font-weight: 700;
 }
 
+.googleBadge {
+  color: $color-primary;
+  font-weight: 700;
+}
+
+.loadingRow {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  padding: 0.625rem 0.75rem;
+  font-size: 0.8125rem;
+  opacity: 0.75;
+}
+
+.spinner {
+  animation: spin 0.8s linear infinite;
+}
+
+@keyframes spin {
+  to {
+    transform: rotate(360deg);
+  }
+}
+
 .newFields {
   margin-top: 0.875rem;
   padding: 1rem;
