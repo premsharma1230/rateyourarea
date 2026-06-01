@@ -70,12 +70,16 @@ export default function ReviewCard({ review, detailed = false }) {
             className={`${styles.avatar} ${anonymous ? styles.avatarAnonymous : styles.avatarVerified}`}
           >
             {anonymous ? (
-              <UserRound className={styles.avatarIcon} aria-hidden />
+              <UserRound
+                className={styles.avatarIcon}
+                strokeWidth={1.5}
+                aria-hidden
+              />
             ) : (
               <UserInitials
                 name={displayName || "Resident"}
                 email={user?.email}
-                size="lg"
+                size="md"
                 className={styles.initials}
               />
             )}
@@ -109,23 +113,6 @@ export default function ReviewCard({ review, detailed = false }) {
       </div>
 
       <p className={styles.quote}>&ldquo;{review.quote}&rdquo;</p>
-
-      {detailed && (review.pros || review.cons) && (
-        <div className={styles.prosCons}>
-          {review.pros && (
-            <div className={styles.prosBlock}>
-              <h5 className={styles.blockTitle}>Pros</h5>
-              <p>{review.pros}</p>
-            </div>
-          )}
-          {review.cons && (
-            <div className={styles.consBlock}>
-              <h5 className={styles.blockTitle}>Cons</h5>
-              <p>{review.cons}</p>
-            </div>
-          )}
-        </div>
-      )}
 
       {detailed && review.detailedRatings && (
         <div className={styles.ratingGrid}>

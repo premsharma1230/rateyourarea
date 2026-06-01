@@ -1,0 +1,194 @@
+@use "@/styles/variables" as *;
+
+.wrap {
+  position: relative;
+  overflow-x: clip;
+  width: 100%;
+  max-width: 100%;
+  margin-inline: auto;
+  padding-inline: 0;
+
+  @media (min-width: 768px) {
+    padding-inline: 0.125rem;
+  }
+}
+
+.carousel {
+  width: 100%;
+}
+
+// Fixed-height stage — every slide uses the same height
+.stage {
+  --review-carousel-h: 20.5rem;
+  position: relative;
+  height: var(--review-carousel-h);
+  overflow: hidden;
+
+  @media (min-width: 640px) {
+    --review-carousel-h: 21rem;
+  }
+
+  @media (min-width: 768px) {
+    --review-carousel-h: 22rem;
+  }
+}
+
+.emblaViewport {
+  width: 100%;
+  height: 100%;
+  isolation: isolate;
+}
+
+.track {
+  margin-left: 0 !important;
+  align-items: stretch !important;
+  touch-action: pan-y pinch-zoom;
+  height: 100%;
+  min-height: 100%;
+}
+
+.item {
+  display: flex !important;
+  flex-direction: column !important;
+  align-self: stretch !important;
+  min-width: 0 !important;
+  height: var(--review-carousel-h) !important;
+  min-height: var(--review-carousel-h) !important;
+  max-height: var(--review-carousel-h) !important;
+  flex: 0 0 100% !important;
+  max-width: 100% !important;
+  padding: 0 !important;
+  box-sizing: border-box;
+
+  @media (min-width: 640px) {
+    flex: 0 0 92% !important;
+    max-width: 92% !important;
+    padding: 0 0.4rem !important;
+    flex: 0 0 50% !important;
+    max-width: 50% !important;
+  }
+
+  @media (min-width: 1024px) {
+    flex: 0 0 33.333% !important;
+    max-width: 33.333% !important;
+  }
+
+  > * {
+    flex: 1 1 auto;
+    width: 100%;
+    min-width: 0;
+    min-height: 0;
+  }
+}
+
+.empty {
+  margin: 0;
+  font-size: 0.875rem;
+  font-weight: 600;
+  opacity: 0.7;
+}
+
+.dots {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.35rem;
+  min-height: 0.35rem;
+  margin-top: 0.75rem;
+}
+
+.dot {
+  width: 0.35rem;
+  height: 0.35rem;
+  padding: 0;
+  border: none;
+  border-radius: 50%;
+  cursor: pointer;
+  flex-shrink: 0;
+  background: rgba(100, 116, 139, 0.45);
+  transition:
+    width 0.2s ease,
+    background 0.2s ease,
+    box-shadow 0.2s ease;
+
+  :global(.dark) & {
+    background: rgba(120, 130, 150, 0.4);
+  }
+}
+
+.dotActive {
+  width: 0.875rem;
+  height: 0.35rem;
+  border-radius: 999px;
+  background: $color-primary;
+  box-shadow: 0 0 6px rgba($color-primary, 0.45);
+
+  :global(.dark) & {
+    background: lighten($color-primary, 6%);
+    box-shadow: 0 0 8px rgba($color-primary, 0.5);
+  }
+}
+
+.nav {
+  position: absolute !important;
+  top: 50% !important;
+  margin: 0 !important;
+  transform: translateY(-50%) !important;
+  width: 1.75rem !important;
+  height: 1.75rem !important;
+  min-width: 1.75rem !important;
+
+  @media (min-width: 768px) {
+    width: 2rem !important;
+    height: 2rem !important;
+    min-width: 2rem !important;
+  }
+  padding: 0 !important;
+  border-radius: 50% !important;
+  border: 1px solid rgba($color-outline-variant, 0.45) !important;
+  background: rgba(255, 255, 255, 0.95) !important;
+  color: $color-on-surface !important;
+  box-shadow: 0 2px 8px rgba(15, 23, 42, 0.1);
+  z-index: 2;
+
+  :global(.dark) & {
+    background: rgba(22, 28, 42, 0.95) !important;
+    border-color: rgba(255, 255, 255, 0.12) !important;
+    color: $color-on-surface-dark !important;
+  }
+
+  svg {
+    width: 0.875rem !important;
+    height: 0.875rem !important;
+  }
+}
+
+.navPrev {
+  left: 0.125rem !important;
+
+  @media (min-width: 768px) {
+    left: 0.25rem !important;
+  }
+}
+
+.navNext {
+  right: 0.125rem !important;
+
+  @media (min-width: 768px) {
+    right: 0.25rem !important;
+  }
+}
+
+.wrapThreeUp {
+  .itemThreeUp {
+    @media (min-width: 640px) and (max-width: 767.98px) {
+      flex: 0 0 92% !important;
+      max-width: 92% !important;
+    }
+
+    @media (min-width: 768px) {
+      flex: 0 0 calc(100% / 3) !important;
+      max-width: calc(100% / 3) !important;
+    }
+  }
+}

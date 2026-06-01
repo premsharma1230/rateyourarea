@@ -38,7 +38,11 @@ export default function AreaDetailReviewCard({ review }) {
             className={`${styles.avatar} ${anonymous ? styles.avatarAnonymous : styles.avatarVerified}`}
           >
             {anonymous ? (
-              <UserRound className={styles.avatarIcon} aria-hidden />
+              <UserRound
+                className={styles.avatarIcon}
+                strokeWidth={1.5}
+                aria-hidden
+              />
             ) : (
               <UserInitials
                 name={displayName || "Resident"}

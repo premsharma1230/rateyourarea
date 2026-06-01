@@ -5,7 +5,9 @@ import { Building2, Grid3x3, BedDouble, Home, MapPin, MessageSquarePlus } from "
 
 import EntityReviews from "@/components/entity/EntityReviews";
 import { useCommunityData } from "@/components/providers/CommunityDataProvider";
+import Breadcrumbs from "@/components/shared/Breadcrumbs";
 import RatingBadge from "@/components/shared/RatingBadge";
+import { buildExploreBreadcrumbs } from "@/lib/explore-nav";
 import {
   decodeEntityName,
   reviewMatchesEntity,
@@ -58,6 +60,8 @@ export default function EntityPageClient({ type, slug, areaSlug }) {
     ? `/review?area=${parentArea.slug}`
     : "/review";
 
+  const breadcrumbItems = buildExploreBreadcrumbs(normalizedType, displayName);
+
   return (
     <div className={styles.page}>
       <div className={styles.hero}>
@@ -65,11 +69,7 @@ export default function EntityPageClient({ type, slug, areaSlug }) {
           <Icon className={styles.icon} aria-hidden />
         </div>
         <div className={styles.heroContent}>
-          <div className={styles.breadcrumb}>
-            <Link href="/">Home</Link>
-            <span>/</span>
-            <span>{entityLabel}</span>
-          </div>
+          <Breadcrumbs items={breadcrumbItems} />
           <h1 className={styles.title}>{displayName}</h1>
           <p className={styles.subtitle}>{subtitleParts.join(", ")}</p>
           <div className={styles.meta}>

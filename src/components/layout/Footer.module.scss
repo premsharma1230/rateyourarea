@@ -6,7 +6,11 @@
   transition: all 0.3s ease;
 
   @include tablet {
-    display: none;
+    padding: 2.5rem 0 calc(6.25rem + env(safe-area-inset-bottom, 0px));
+  }
+
+  @include mobile {
+    padding: 2rem 0 calc(6rem + env(safe-area-inset-bottom, 0px));
   }
 
   :global(.light) & {
@@ -37,6 +41,11 @@
   grid-template-columns: repeat(12, 1fr);
   gap: 3rem;
   margin-bottom: 5rem;
+
+  @include tablet {
+    gap: 2rem;
+    margin-bottom: 2.5rem;
+  }
 }
 
 .brand {
@@ -63,6 +72,12 @@
   font-size: 1.125rem;
   line-height: 1.6;
   font-weight: 500;
+
+  @include tablet {
+    margin-top: 1.25rem;
+    max-width: none;
+    font-size: 0.9375rem;
+  }
 
   :global(.light) & {
     color: $color-on-surface-variant;
@@ -273,6 +288,13 @@
   gap: 1.5rem;
   padding-top: 2.5rem;
   border-top: 1px solid rgba($color-outline-variant, 0.1);
+
+  @include tablet {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 1rem;
+    padding-top: 1.5rem;
+  }
 
   :global(.light) & {
     border-color: rgba($color-outline, 0.3);

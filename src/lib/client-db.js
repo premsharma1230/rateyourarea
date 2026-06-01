@@ -144,9 +144,7 @@ export function buildReviewFromForm(
   { isAnonymous = true, reviewerDisplayName = null } = {}
 ) {
   const rating = form.ratings.overall || 0;
-  const quote =
-    [form.pros, form.cons].filter(Boolean).join(" ").trim() ||
-    "Shared an anonymous experience about this area.";
+  const quote = "Shared an experience about this area.";
 
   const tags = (form.issues || [])
     .map((issue) => ISSUE_TAG_MAP[issue])
@@ -172,8 +170,8 @@ export function buildReviewFromForm(
     duration: DURATION_LABELS[form.duration] || form.duration,
     pincode: form.pincode,
     quote,
-    pros: form.pros,
-    cons: form.cons,
+    pros: "",
+    cons: "",
     issues: form.issues,
     tags,
     recommended: form.recommend,

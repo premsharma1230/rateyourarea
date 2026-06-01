@@ -8,6 +8,8 @@ import { AlertTriangle, MapPin, MessageSquarePlus } from "lucide-react";
 import AreaReviews from "@/components/area/AreaReviews";
 import { useCommunityData } from "@/components/providers/CommunityDataProvider";
 import AreaMap from "@/components/shared/AreaMap";
+import Breadcrumbs from "@/components/shared/Breadcrumbs";
+import { buildExploreBreadcrumbs } from "@/lib/explore-nav";
 import RatingBadge from "@/components/shared/RatingBadge";
 import { buildGoogleMapsUrl } from "@/lib/osm-geocoding";
 import {
@@ -47,6 +49,7 @@ export default function AreaPageClient({ slug, staticArea }) {
 
   const aggregateRatings = computeAggregateRatings(area, reviews);
   const mapsUrl = buildGoogleMapsUrl(area);
+  const breadcrumbItems = buildExploreBreadcrumbs(area.type ?? "all", area.name);
 
   return (
     <div className={styles.page}>
@@ -63,11 +66,7 @@ export default function AreaPageClient({ slug, staticArea }) {
         </div>
         <div className={styles.heroOverlay} aria-hidden />
         <div className={styles.heroContent}>
-          <div className={styles.breadcrumb}>
-            <Link href="/explore">{area.city}</Link>
-            <span>/</span>
-            <span>{area.name}</span>
-          </div>
+          <Breadcrumbs items={breadcrumbItems} variant="onDark" />
           <h1 className={styles.title}>{area.name}</h1>
           <p className={styles.description}>{area.description}</p>
           <div className={styles.meta}>

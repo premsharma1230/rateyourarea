@@ -4,11 +4,8 @@ import { useMemo, useState } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 
 import { useCommunityData } from "@/components/providers/CommunityDataProvider";
-import PaginatedList from "@/components/shared/PaginatedList";
-import ReviewCard from "@/components/shared/ReviewCard";
+import ReviewCardsCarousel from "@/components/shared/ReviewCardsCarousel";
 import styles from "./CommunityVoice.module.scss";
-
-const PAGE_SIZE = 4;
 
 export default function CommunityVoice() {
   const { allReviews, ready } = useCommunityData();
@@ -60,14 +57,10 @@ export default function CommunityVoice() {
           exit={{ opacity: 0, y: -20 }}
           transition={{ duration: 0.3 }}
         >
-          <PaginatedList
-            items={sortedReviews}
-            pageSize={PAGE_SIZE}
-            className={styles.grid}
+          <ReviewCardsCarousel
+            variant="threeUp"
+            reviews={sortedReviews}
             emptyMessage="No reviews yet. Be the first to share your experience."
-            renderItem={(review) => (
-              <ReviewCard key={review.id} review={review} detailed />
-            )}
           />
         </motion.div>
       </AnimatePresence>

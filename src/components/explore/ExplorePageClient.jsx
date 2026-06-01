@@ -1,6 +1,6 @@
 "use client";
 
-import { useCallback, useMemo } from "react";
+import { useCallback, useEffect, useMemo, useState, useTransition } from "react";
 import Link from "next/link";
 import { useRouter, useSearchParams } from "next/navigation";
 
@@ -11,7 +11,10 @@ import AreaCardSkeleton, {
 import PaginatedList from "@/components/shared/PaginatedList";
 import ExploreFilters from "@/components/explore/ExploreFilters";
 import { useCommunityData } from "@/components/providers/CommunityDataProvider";
+import Breadcrumbs from "@/components/shared/Breadcrumbs";
 import { filterAreas } from "@/data/areas";
+import { buildExploreBreadcrumbs, getExplorePageTitle } from "@/lib/explore-nav";
+import { filterPGListings } from "@/lib/filter-pgs";
 import listingStyles from "@/app/listing.module.scss";
 import styles from "./ExplorePage.module.scss";
 
@@ -21,7 +24,7 @@ const PAGE_SIZE = 9;
 export default function ExplorePageClient() {
   const searchParams = useSearchParams();
   const router = useRouter();
-  const { allAreas, ready } = useCommunityData();
+  const { allAreas, supabaseAreas, supabasePgs, ready } = useCommunityData();
 
   const city = searchParams.get("city") || DEFAULT_CITY;
   const sector = searchParams.get("sector") || "";
@@ -30,7 +33,13 @@ export default function ExplorePageClient() {
   const type = searchParams.get("type") || "all";
   const query = searchParams.get("q") || "";
   const rawPage = parseInt(searchParams.get("page") || "1", 10);
-  const page = Number.isFinite(rawPage) && rawPage > 0 ? rawPage : 1;
+  const urlPage = Number.isFinite(rawPage) && rawPage > 0 ? rawPage : 1;
+  const [page, setPage] = useState(urlPage);
+  const [, startTransition] = useTransition();
+
+  useEffect(() => {
+    setPage(urlPage);
+  }, [urlPage]);
 
   const updateParams = useCallback(
     (updates) => {
@@ -68,29 +77,72 @@ export default function ExplorePageClient() {
     updateParams({ pg: value, society: "" });
   };
 
-  const results = useMemo(
-    () =>
-      filterAreas(
-        {
-          city: DEFAULT_CITY,
-          sector,
-          society,
-          pg,
-          type,
-          query,
-        },
-        allAreas
-      ),
-    [allAreas, sector, society, pg, type, query]
+  const isPgBrowse = type === "pg";
+  const areaListingSource =
+    supabaseAreas.length > 0 ? supabaseAreas : allAreas;
+
+  const results = useMemo(() => {
+    if (isPgBrowse) {
+      return filterPGListings(
+        { city: DEFAULT_CITY, sector, pg, query },
+        supabasePgs
+      );
+    }
+
+    return filterAreas(
+      {
+        city: DEFAULT_CITY,
+        sector,
+        society,
+        pg: "",
+        type,
+        query,
+      },
+      areaListingSource
+    );
+  }, [
+    isPgBrowse,
+    supabasePgs,
+    areaListingSource,
+    sector,
+    society,
+    type,
+    query,
+  ]);
+
+  const totalPages = Math.max(1, Math.ceil(results.length / PAGE_SIZE));
+  const safePage = Math.min(page, totalPages);
+
+  useEffect(() => {
+    if (urlPage !== safePage) {
+      startTransition(() => {
+        updateParams({ page: safePage === 1 ? "" : String(safePage) });
+      });
+    }
+  }, [urlPage, safePage, updateParams]);
+
+  const breadcrumbItems = buildExploreBreadcrumbs(type);
+  const pageTitle = getExplorePageTitle(type);
+
+  const handlePageChange = useCallback(
+    (nextPage) => {
+      setPage(nextPage);
+      startTransition(() => {
+        updateParams({ page: nextPage === 1 ? "" : String(nextPage) });
+      });
+    },
+    [updateParams]
   );
 
   return (
     <div className={listingStyles.page}>
       <header className={listingStyles.header}>
-        <h1 className={listingStyles.title}>Explore Areas</h1>
+        <Breadcrumbs items={breadcrumbItems} />
+        <h1 className={listingStyles.title}>{pageTitle}</h1>
         <p className={listingStyles.subtitle}>
-          Browse societies, sectors, PGs and flats in Gurugram — rated by real
-          residents.
+          {isPgBrowse
+            ? "Browse PG and hostel listings in Gurugram — rated by residents."
+            : "Browse societies, sectors, PGs and flats in Gurugram — rated by real residents."}
         </p>
       </header>
 
@@ -105,7 +157,16 @@ export default function ExplorePageClient() {
         onSectorChange={handleSectorChange}
         onSocietyChange={handleSocietyChange}
         onPGChange={handlePGChange}
-        onTypeChange={(v) => updateParams({ type: v })}
+        onTypeChange={(v) =>
+          updateParams({
+            type: v,
+            ...(v === "pg"
+              ? { society: "", sector: "" }
+              : v !== "all"
+                ? { pg: "" }
+                : {}),
+          })
+        }
         onQueryChange={(v) => updateParams({ q: v })}
       />
 
@@ -130,21 +191,28 @@ export default function ExplorePageClient() {
 
           {results.length === 0 ? (
             <p className={styles.empty}>
-              No areas match your filters. Try a different sector, society, or
-              search term.
+              {isPgBrowse && supabasePgs.length === 0
+                ? "PG data nahi mili — pg_data table empty hai ya CSV dubara import karo. Supabase SQL: recreate_pg_data_table.sql"
+                : !isPgBrowse && supabaseAreas.length === 0
+                  ? "Area data load nahi hua. Supabase mein enable_areas_read.sql chalao."
+                  : "No listings match your filters. Try a different search."}
             </p>
           ) : (
             <PaginatedList
               items={results}
               pageSize={PAGE_SIZE}
-              page={page}
-              onPageChange={(nextPage) =>
-                updateParams({ page: nextPage === 1 ? "" : String(nextPage) })
-              }
+              page={safePage}
+              onPageChange={handlePageChange}
+              scrollOnPageChange={false}
               className={listingStyles.grid}
               emptyMessage=""
-              renderItem={(area, index) => (
-                <AreaCard key={area.slug} area={area} index={index} />
+              renderItem={(area, index, pageNum) => (
+                <AreaCard
+                  key={`${area.slug}-p${pageNum}`}
+                  area={area}
+                  index={index}
+                  animateOnMount
+                />
               )}
             />
           )}

@@ -15,6 +15,7 @@ export default function SearchableFilter({
   allLabel = "All",
   allowCustom = true,
   disabled = false,
+  optionLimit = 12,
 }) {
   const [open, setOpen] = useState(false);
   const [query, setQuery] = useState("");
@@ -43,8 +44,8 @@ export default function SearchableFilter({
         })
       : options;
 
-    return base.slice(0, 12);
-  }, [options, query]);
+    return optionLimit > 0 ? base.slice(0, optionLimit) : base;
+  }, [options, query, optionLimit]);
 
   const showCustom =
     allowCustom &&
@@ -127,8 +128,8 @@ export default function SearchableFilter({
               {allLabel}
             </button>
           </li>
-          {filteredOptions.map((option) => (
-            <li key={option.value}>
+          {filteredOptions.map((option, index) => (
+            <li key={option.key ?? `${option.value}-${index}`}>
               <button
                 type="button"
                 className={`${styles.option} ${value === option.value ? styles.active : ""}`}

@@ -134,3 +134,45 @@
   align-items: center;
   justify-content: space-between;
 }
+
+// Recessed circular avatar (review cards, profile placeholders)
+@mixin avatar-recessed {
+  border-radius: 50%;
+  overflow: hidden;
+
+  :global(.dark) & {
+    background: radial-gradient(
+      circle at 50% 32%,
+      #1e3048 0%,
+      #0f1728 55%,
+      #0a0f18 100%
+    );
+    box-shadow:
+      inset 0 3px 8px rgba(0, 0, 0, 0.55),
+      inset 0 -1px 0 rgba(125, 211, 252, 0.07);
+    border: 1px solid rgba(255, 255, 255, 0.06);
+  }
+
+  :global(.light) & {
+    background: radial-gradient(
+      circle at 50% 32%,
+      #eef2f7 0%,
+      #d4dde8 55%,
+      #c5d0de 100%
+    );
+    box-shadow:
+      inset 0 2px 6px rgba(15, 23, 42, 0.14),
+      inset 0 -1px 0 rgba(255, 255, 255, 0.95);
+    border: 1px solid rgba($color-outline, 0.22);
+  }
+}
+
+@mixin avatar-icon-muted {
+  :global(.dark) & {
+    color: #94a3b8;
+  }
+
+  :global(.light) & {
+    color: #64748b;
+  }
+}

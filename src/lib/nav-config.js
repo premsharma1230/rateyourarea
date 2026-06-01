@@ -1,4 +1,4 @@
-import { Home, Compass, BookOpen, User, MessageSquarePlus } from "lucide-react";
+import { Home, Compass, User, MessageSquarePlus } from "lucide-react";
 
 /** Main header nav — shared by desktop header, mobile bottom nav, and drawer */
 export const MAIN_NAV_ITEMS = [
@@ -9,7 +9,6 @@ export const MAIN_NAV_ITEMS = [
     icon: Compass,
     match: ["/explore", "/area"],
   },
-  { href: "/blog", label: "Blog", icon: BookOpen, match: ["/blog"], hidden: true },
 ];
 
 export const PROFILE_NAV_ITEM = {
@@ -26,13 +25,6 @@ export const REVIEW_NAV_ITEM = {
   icon: MessageSquarePlus,
   match: ["/review"],
 };
-
-export const blogMenu = [
-  "Area Guides",
-  "Flat Buying Tips",
-  "Tenant Rights India",
-  "Builder News",
-];
 
 export function isNavActive(pathname, matchPaths) {
   if (matchPaths.includes("/")) {

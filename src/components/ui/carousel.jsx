@@ -5,7 +5,6 @@ import useEmblaCarousel from "embla-carousel-react";
 import { ArrowLeft, ArrowRight } from "lucide-react";
 
 import { cn } from "@/lib/utils";
-import { Button } from "@/components/ui/button";
 
 const CarouselContext = React.createContext(null);
 
@@ -35,14 +34,6 @@ function Carousel({
     },
     plugins
   );
-  const [canScrollPrev, setCanScrollPrev] = React.useState(false);
-  const [canScrollNext, setCanScrollNext] = React.useState(false);
-
-  const onSelect = React.useCallback((carouselApi) => {
-    if (!carouselApi) return;
-    setCanScrollPrev(carouselApi.canScrollPrev());
-    setCanScrollNext(carouselApi.canScrollNext());
-  }, []);
 
   const scrollPrev = React.useCallback(() => {
     api?.scrollPrev();
@@ -70,17 +61,6 @@ function Carousel({
     setApi(api);
   }, [api, setApi]);
 
-  React.useEffect(() => {
-    if (!api) return;
-    onSelect(api);
-    api.on("reInit", onSelect);
-    api.on("select", onSelect);
-
-    return () => {
-      api?.off("select", onSelect);
-    };
-  }, [api, onSelect]);
-
   return (
     <CarouselContext.Provider
       value={{
@@ -91,8 +71,6 @@ function Carousel({
           orientation || (opts?.axis === "y" ? "vertical" : "horizontal"),
         scrollPrev,
         scrollNext,
-        canScrollPrev,
-        canScrollNext,
       }}
     >
       <div
@@ -108,11 +86,14 @@ function Carousel({
   );
 }
 
-function CarouselContent({ className, ...props }) {
+function CarouselContent({ className, viewportClassName, ...props }) {
   const { carouselRef, orientation } = useCarousel();
 
   return (
-    <div ref={carouselRef} className="overflow-hidden">
+    <div
+      ref={carouselRef}
+      className={cn("overflow-hidden", viewportClassName)}
+    >
       <div
         className={cn(
           "flex",
@@ -142,63 +123,68 @@ function CarouselItem({ className, ...props }) {
   );
 }
 
-function CarouselPrevious({
-  className,
-  variant = "outline",
-  size = "icon",
-  ...props
-}) {
-  const { orientation, scrollPrev, canScrollPrev } = useCarousel();
+const navButtonClass =
+  "inline-flex shrink-0 items-center justify-center rounded-full border outline-none select-none transition-[background,border-color,opacity,box-shadow] duration-200 disabled:pointer-events-none disabled:opacity-35 [&_svg]:pointer-events-none [&_svg]:shrink-0";
+
+function CarouselPrevious({ className, onClick, onPointerDown, ...props }) {
+  const { orientation, scrollPrev } = useCarousel();
 
   return (
-    <Button
+    <button
       type="button"
-      variant={variant}
-      size={size}
       className={cn(
-        "absolute size-8 rounded-full",
+        navButtonClass,
+        "absolute size-8",
         orientation === "horizontal"
           ? "top-1/2 -left-12 -translate-y-1/2"
           : "-top-12 left-1/2 -translate-x-1/2 rotate-90",
         className
       )}
-      disabled={!canScrollPrev}
-      onClick={scrollPrev}
+      onPointerDown={(e) => {
+        e.preventDefault();
+        onPointerDown?.(e);
+      }}
+      onClick={(e) => {
+        e.preventDefault();
+        onClick?.(e);
+        scrollPrev();
+      }}
       {...props}
     >
-      <ArrowLeft />
+      <ArrowLeft className="size-4" aria-hidden />
       <span className="sr-only">Previous slide</span>
-    </Button>
+    </button>
   );
 }
 
-function CarouselNext({
-  className,
-  variant = "outline",
-  size = "icon",
-  ...props
-}) {
-  const { orientation, scrollNext, canScrollNext } = useCarousel();
+function CarouselNext({ className, onClick, onPointerDown, ...props }) {
+  const { orientation, scrollNext } = useCarousel();
 
   return (
-    <Button
+    <button
       type="button"
-      variant={variant}
-      size={size}
       className={cn(
-        "absolute size-8 rounded-full",
+        navButtonClass,
+        "absolute size-8",
         orientation === "horizontal"
           ? "top-1/2 -right-12 -translate-y-1/2"
           : "-bottom-12 left-1/2 -translate-x-1/2 rotate-90",
         className
       )}
-      disabled={!canScrollNext}
-      onClick={scrollNext}
+      onPointerDown={(e) => {
+        e.preventDefault();
+        onPointerDown?.(e);
+      }}
+      onClick={(e) => {
+        e.preventDefault();
+        onClick?.(e);
+        scrollNext();
+      }}
       {...props}
     >
-      <ArrowRight />
+      <ArrowRight className="size-4" aria-hidden />
       <span className="sr-only">Next slide</span>
-    </Button>
+    </button>
   );
 }
 

@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useMemo, useState } from "react";
+import { useEffect, useMemo, useRef, useState } from "react";
 
 import {
   Pagination,
@@ -25,8 +25,10 @@ export default function PaginatedList({
   onPageChange,
   paginationClassName,
   showPageMeta = false,
+  scrollOnPageChange = true,
 }) {
   const [internalPage, setInternalPage] = useState(1);
+  const listRef = useRef(null);
   const isControlled = controlledPage !== undefined;
   const totalPages = Math.max(1, Math.ceil(items.length / pageSize));
   const currentPage = isControlled ? controlledPage : internalPage;
@@ -51,6 +53,11 @@ export default function PaginatedList({
     }
   }, [internalPage, isControlled, totalPages]);
 
+  useEffect(() => {
+    if (!scrollOnPageChange) return;
+    listRef.current?.scrollIntoView({ behavior: "smooth", block: "start" });
+  }, [safePage, scrollOnPageChange]);
+
   const pageItems = useMemo(
     () => items.slice((safePage - 1) * pageSize, safePage * pageSize),
     [items, pageSize, safePage]
@@ -69,8 +76,8 @@ export default function PaginatedList({
 
   return (
     <>
-      <div className={className}>
-        {pageItems.map((item, index) => renderItem(item, (safePage - 1) * pageSize + index))}
+      <div className={className} ref={listRef}>
+        {pageItems.map((item, index) => renderItem(item, index, safePage))}
       </div>
 
       {totalPages > 1 && (

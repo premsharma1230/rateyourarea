@@ -12,7 +12,6 @@ import { useAuth } from "@/components/providers/AuthProvider";
 import { useCommunityData } from "@/components/providers/CommunityDataProvider";
 import { useToast } from "@/components/ui/ToastProvider";
 import { Input } from "@/components/ui/input";
-import { Textarea } from "@/components/ui/textarea";
 import { Button } from "@/components/ui/button";
 import { Label } from "@/components/ui/label";
 import {
@@ -94,8 +93,6 @@ export default function AnonymousReviewForm() {
     residentType: "",
     duration: "",
     ratings: Object.fromEntries(RATING_FIELDS.map((f) => [f.key, 0])),
-    pros: "",
-    cons: "",
     issues: [],
     recommend: null,
   });
@@ -161,10 +158,7 @@ export default function AnonymousReviewForm() {
     form.residentType &&
     form.duration;
 
-  const canSubmit =
-    form.ratings.overall > 0 &&
-    (form.pros.trim() || form.cons.trim()) &&
-    form.recommend !== null;
+  const canSubmit = form.ratings.overall > 0 && form.recommend !== null;
 
   const handleSubmit = async () => {
     if (!canSubmit || submitting) return;
@@ -347,30 +341,6 @@ export default function AnonymousReviewForm() {
               animate={{ opacity: 1, x: 0 }}
               exit={{ opacity: 0, x: -30 }}
             >
-              <div className={styles.field}>
-                <Label className={styles.label}>Pros</Label>
-                <Textarea
-                  className={styles.textareaPros}
-                  placeholder="What do you love about this area?"
-                  value={form.pros}
-                  onChange={(e) =>
-                    setForm({ ...form, pros: e.target.value })
-                  }
-                  rows={4}
-                />
-              </div>
-              <div className={styles.field}>
-                <Label className={styles.label}>Cons</Label>
-                <Textarea
-                  className={styles.textareaCons}
-                  placeholder="What could be better?"
-                  value={form.cons}
-                  onChange={(e) =>
-                    setForm({ ...form, cons: e.target.value })
-                  }
-                  rows={4}
-                />
-              </div>
               <Label className={styles.label}>Common issues</Label>
               <div className={styles.checkGroup}>
                 {ISSUES.map((issue) => (

@@ -1,7 +1,6 @@
 "use client";
 
 import Link from "next/link";
-import { motion } from "framer-motion";
 import { ArrowRight } from "lucide-react";
 
 import TopEntityCard from "@/components/home/TopEntityCard";
@@ -14,13 +13,18 @@ import {
   CarouselPrevious,
 } from "@/components/ui/carousel";
 import { cn } from "@/lib/utils";
-import { TOP_SECTIONS, aggregateTopEntities } from "@/lib/top-entities";
+import {
+  TOP_SECTIONS,
+  aggregateTopAreasFromList,
+  aggregateTopEntities,
+} from "@/lib/top-entities";
 import styles from "./TopRatedSections.module.scss";
 
 const CAROUSEL_OPTS = {
   align: "start",
   containScroll: "trimSnaps",
   dragFree: false,
+  slidesToScroll: 1,
 };
 
 function TopSectionRow({ section, entities }) {
@@ -28,52 +32,80 @@ function TopSectionRow({ section, entities }) {
 
   return (
     <section className={styles.section}>
-      <motion.div
-        className={styles.header}
-        initial={{ opacity: 0, y: 16 }}
-        whileInView={{ opacity: 1, y: 0 }}
-        viewport={{ once: true }}
-      >
-        <div>
-          <h2 className={styles.title}>{section.title}</h2>
-          <p className={styles.subtitle}>{section.subtitle}</p>
-        </div>
-        <Link href="/explore" className={styles.viewAll}>
-          View all
-          <ArrowRight className={styles.arrow} aria-hidden />
-        </Link>
-      </motion.div>
       <Carousel opts={CAROUSEL_OPTS} className={styles.carousel}>
-        <CarouselContent className={styles.carouselContent}>
-          {entities.map((entity, index) => (
-            <CarouselItem key={`${entity.type}-${entity.key}`} className={styles.carouselItem}>
-              <TopEntityCard entity={entity} index={index} />
-            </CarouselItem>
-          ))}
-        </CarouselContent>
-        <CarouselPrevious className={cn(styles.navBtn, styles.navPrev)} />
-        <CarouselNext className={cn(styles.navBtn, styles.navNext)} />
+        <div className={styles.sectionHeader}>
+          <div className={styles.titleBlock}>
+            <h2 className={styles.title}>{section.title}</h2>
+            {section.subtitle ? (
+              <p className={styles.subtitle}>{section.subtitle}</p>
+            ) : null}
+            <Link href={section.viewAllHref || "/explore"} className={styles.viewAll}>
+              View all
+              <ArrowRight className={styles.arrow} aria-hidden />
+            </Link>
+          </div>
+          <div className={styles.navGroup}>
+            <CarouselPrevious className={cn(styles.navBtn)} />
+            <CarouselNext className={cn(styles.navBtn)} />
+          </div>
+        </div>
+
+        <div className={styles.carouselViewport}>
+          <CarouselContent className={styles.carouselTrack}>
+            {entities.map((entity) => (
+              <CarouselItem
+                key={`${entity.type}-${entity.key}`}
+                className={styles.carouselItem}
+              >
+                <div className={styles.slideInner}>
+                  <TopEntityCard entity={entity} />
+                </div>
+              </CarouselItem>
+            ))}
+          </CarouselContent>
+        </div>
       </Carousel>
     </section>
   );
 }
 
 export default function TopRatedSections() {
-  const { allReviews, allAreas, ready } = useCommunityData();
+  const { allReviews, allAreas, supabaseAreas, supabasePgs, ready } = useCommunityData();
 
   if (!ready) {
     return <div className={styles.loading} aria-busy="true" />;
   }
 
-  const sections = TOP_SECTIONS.map((section) => ({
-    section,
-    entities: aggregateTopEntities(
-      allReviews,
-      allAreas,
-      section.types,
-      10
-    ),
-  })).filter(({ entities }) => entities.length > 0);
+  const sections = TOP_SECTIONS.map((section) => {
+    let entities = [];
+
+    if (section.id === "pg" && supabasePgs.length > 0) {
+      entities = aggregateTopAreasFromList(
+        supabasePgs,
+        section.types,
+        10,
+        allReviews
+      );
+    } else if (section.fromAreas && supabaseAreas.length > 0) {
+      entities = aggregateTopAreasFromList(
+        supabaseAreas,
+        section.types,
+        10,
+        allReviews
+      );
+    } else if (section.fromAreas) {
+      entities = aggregateTopAreasFromList(
+        allAreas,
+        section.types,
+        10,
+        allReviews
+      );
+    } else {
+      entities = aggregateTopEntities(allReviews, allAreas, section.types, 10);
+    }
+
+    return { section, entities };
+  }).filter(({ entities }) => entities.length > 0);
 
   if (!sections.length) return null;
 

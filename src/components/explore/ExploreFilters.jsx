@@ -27,29 +27,35 @@ export default function ExploreFilters({
   onTypeChange,
   onQueryChange,
 }) {
-  const { allAreas } = useCommunityData();
-  const sectors = getSectors(city, allAreas);
-  const societies = getSocieties(city, sector, allAreas);
-  const pgs = getPGs(city, sector, allAreas);
+  const { allAreas, supabaseAreas, supabasePgs, ready } = useCommunityData();
+  const areaSource =
+    supabaseAreas.length > 0 ? supabaseAreas : allAreas;
+  const sectors = getSectors(city, areaSource);
+  const societies = getSocieties(city, sector, areaSource);
+  const pgSource =
+    supabasePgs.length > 0 ? supabasePgs : getPGs(city, sector, allAreas);
 
   const cityOptions = ACTIVE_CITIES.map((item) => ({
     value: item.id,
     label: `${item.label} (${item.aliases[0]})`,
   }));
 
-  const sectorOptions = sectors.map((item) => ({
+  const sectorOptions = sectors.map((item, index) => ({
+    key: `${item.sector}-${index}`,
     value: item.sector,
     label: item.name,
     meta: "Sector",
   }));
 
-  const societyOptions = societies.map((item) => ({
+  const societyOptions = societies.map((item, index) => ({
+    key: item.id || `${item.slug}-${index}`,
     value: item.slug,
     label: item.name,
     meta: item.sector ? `Sector ${item.sector}` : "Society",
   }));
 
-  const pgOptions = pgs.map((item) => ({
+  const pgOptions = pgSource.map((item, index) => ({
+    key: item.id || `${item.slug}-${index}`,
     value: item.slug,
     label: item.name,
     meta: item.sector ? `Sector ${item.sector}` : "PG",
@@ -84,6 +90,7 @@ export default function ExploreFilters({
           options={societyOptions}
           placeholder="Type society name…"
           allLabel="All societies"
+          optionLimit={ready && supabaseAreas.length > 0 ? 100 : 12}
         />
 
         <SearchableFilter
@@ -93,6 +100,7 @@ export default function ExploreFilters({
           options={pgOptions}
           placeholder="Type PG name…"
           allLabel="All PGs"
+          optionLimit={ready && supabasePgs.length > 0 ? 100 : 12}
         />
 
         <div className={`${styles.field} ${styles.searchWrap}`}>

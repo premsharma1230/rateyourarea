@@ -8,13 +8,22 @@ import { ChevronRight } from "lucide-react";
 import RatingBadge from "./RatingBadge";
 import styles from "./AreaCard.module.scss";
 
-export default function AreaCard({ area, index = 0 }) {
+export default function AreaCard({ area, index = 0, animateOnMount = false }) {
+  const staggerDelay = Math.min(index, 8) * 0.06;
+
   return (
     <motion.div
-      initial={{ opacity: 0, y: 30 }}
-      whileInView={{ opacity: 1, y: 0 }}
-      viewport={{ once: true }}
-      transition={{ delay: index * 0.15, duration: 0.5 }}
+      initial={{ opacity: 0, y: animateOnMount ? 12 : 30 }}
+      {...(animateOnMount
+        ? {
+            animate: { opacity: 1, y: 0 },
+            transition: { delay: staggerDelay, duration: 0.3 },
+          }
+        : {
+            whileInView: { opacity: 1, y: 0 },
+            viewport: { once: true, margin: "-40px" },
+            transition: { delay: staggerDelay, duration: 0.45 },
+          })}
       whileHover={{ scale: 1.02 }}
     >
       <Link href={`/area/${area.slug}`} className={styles.card}>
