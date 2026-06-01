@@ -1,4 +1,5 @@
 @use "@/styles/variables" as *;
+@use "@/styles/mixins" as *;
 
 .card {
   display: flex;
@@ -35,49 +36,36 @@
 }
 
 .avatar {
-  display: flex;
-  align-items: center;
-  justify-content: center;
+  @include flex-center;
+  @include avatar-recessed;
   width: 2.75rem;
   height: 2.75rem;
-  border-radius: $radius-full;
   flex-shrink: 0;
-
-  &.avatarVerified {
-    background: transparent;
-    padding: 0;
-  }
-
-  &.avatarAnonymous {
-    :global(.light) & {
-      background: rgba($color-blue-deep, 0.08);
-      color: $color-blue-deep;
-    }
-
-    :global(.dark) & {
-      background: rgba($color-primary, 0.12);
-      color: $color-primary;
-    }
-  }
 }
 
 .initials {
-  border-radius: $radius-full;
+  width: 100% !important;
+  height: 100% !important;
+  border-radius: 50% !important;
+  font-size: 0.8125rem !important;
+  font-weight: 700 !important;
+  background: transparent !important;
+  box-shadow: none !important;
+
+  :global(.dark) & {
+    color: #94a3b8 !important;
+  }
+
+  :global(.light) & {
+    color: #64748b !important;
+  }
 }
 
 .avatarIcon {
   width: 1.25rem;
   height: 1.25rem;
-
-  .avatarAnonymous & {
-    :global(.light) & {
-      color: $color-on-surface-variant;
-    }
-
-    :global(.dark) & {
-      color: rgba($color-on-surface-variant-dark, 0.85);
-    }
-  }
+  stroke-width: 1.5;
+  @include avatar-icon-muted;
 }
 
 .nameRow {

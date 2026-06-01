@@ -58,6 +58,8 @@ export function CommunityDataProvider({ children }) {
   const [customAreas, setCustomAreas] = useState([]);
   const [userReviews, setUserReviews] = useState([]);
   const [supabaseReviews, setSupabaseReviews] = useState([]);
+  const [supabaseAreas, setSupabaseAreas] = useState([]);
+  const [supabasePgs, setSupabasePgs] = useState([]);
   const [ready, setReady] = useState(false);
 
   const refreshLocal = useCallback(() => {
@@ -68,16 +70,44 @@ export function CommunityDataProvider({ children }) {
   const refreshSupabase = useCallback(async () => {
     if (!isSupabaseConfigured()) {
       setSupabaseReviews([]);
+      setSupabaseAreas([]);
+      setSupabasePgs([]);
       return;
     }
 
-    const { data, error } = await fetchPublishedReviews();
-    if (error || !data) {
+    try {
+      const [reviewsResult, areasRes, pgsRes] = await Promise.all([
+        fetchPublishedReviews(),
+        fetch("/api/areas"),
+        fetch("/api/pgs"),
+      ]);
+
+      if (reviewsResult.error || !reviewsResult.data) {
+        setSupabaseReviews([]);
+      } else {
+        setSupabaseReviews(
+          reviewsResult.data.map((row) => mapDbReviewToClient(row))
+        );
+      }
+
+      if (areasRes.ok) {
+        const areasJson = await areasRes.json();
+        setSupabaseAreas(areasJson.data ?? []);
+      } else {
+        setSupabaseAreas([]);
+      }
+
+      if (pgsRes.ok) {
+        const pgsJson = await pgsRes.json();
+        setSupabasePgs(pgsJson.data ?? []);
+      } else {
+        setSupabasePgs([]);
+      }
+    } catch {
       setSupabaseReviews([]);
-      return;
+      setSupabaseAreas([]);
+      setSupabasePgs([]);
     }
-
-    setSupabaseReviews(data.map((row) => mapDbReviewToClient(row)));
   }, []);
 
   const refresh = useCallback(async () => {
@@ -106,10 +136,19 @@ export function CommunityDataProvider({ children }) {
     };
   }, [refresh]);
 
-  const allAreas = useMemo(
-    () => [...staticAreas, ...customAreas],
-    [customAreas]
-  );
+  const allAreas = useMemo(() => {
+    const bySlug = new Map();
+    for (const area of staticAreas) {
+      if (area.type !== "pg") bySlug.set(area.slug, area);
+    }
+    for (const area of supabaseAreas) {
+      if (area.type !== "pg") bySlug.set(area.slug, area);
+    }
+    for (const area of customAreas) {
+      bySlug.set(area.slug, area);
+    }
+    return [...bySlug.values()];
+  }, [customAreas, supabaseAreas]);
 
   const allReviews = useMemo(() => {
     const merged = [...userReviews, ...supabaseReviews, ...staticReviews].map(
@@ -147,8 +186,8 @@ export function CommunityDataProvider({ children }) {
           residentSince: form.residentSince || null,
           duration: form.duration,
           ratings: form.ratings,
-          pros: form.pros,
-          cons: form.cons,
+          pros: null,
+          cons: null,
           tags: form.issues || [],
           recommended: form.recommend,
         };
@@ -194,8 +233,10 @@ export function CommunityDataProvider({ children }) {
   );
 
   const getAreaBySlug = useCallback(
-    (slug) => allAreas.find((a) => a.slug === slug),
-    [allAreas]
+    (slug) =>
+      allAreas.find((a) => a.slug === slug) ||
+      supabasePgs.find((a) => a.slug === slug),
+    [allAreas, supabasePgs]
   );
 
   const getReviewsForArea = useCallback(
@@ -209,6 +250,8 @@ export function CommunityDataProvider({ children }) {
         ready,
         allAreas,
         allReviews,
+        supabaseAreas,
+        supabasePgs,
         customAreas,
         userReviews,
         supabaseReviews,

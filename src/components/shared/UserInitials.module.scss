@@ -1,25 +1,17 @@
 @use "@/styles/variables" as *;
+@use "@/styles/mixins" as *;
 
 .avatar {
   display: inline-flex;
   align-items: center;
   justify-content: center;
   flex-shrink: 0;
-  border-radius: $radius-full;
-  font-weight: 800;
+  font-weight: 700;
   letter-spacing: 0.02em;
   line-height: 1;
   text-transform: uppercase;
-
-  :global(.light) & {
-    background: rgba($color-primary, 0.2);
-    color: $color-blue-deep;
-  }
-
-  :global(.dark) & {
-    background: rgba($color-primary, 0.28);
-    color: $color-on-surface-dark;
-  }
+  @include avatar-recessed;
+  @include avatar-icon-muted;
 }
 
 .sm {

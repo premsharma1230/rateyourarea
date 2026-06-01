@@ -4,27 +4,35 @@ import { normalizeReviewTargetType } from "@/lib/review-target";
 export const TOP_SECTIONS = [
   {
     id: "society",
-    title: "Top Society",
-    subtitle: "Highest-rated societies by residents",
+    title: "Elite Society",
+    subtitle: "Highest-rated societies in Gurugram",
     types: ["society"],
+    fromAreas: true,
+    viewAllHref: "/explore?type=society",
   },
   {
     id: "area",
-    title: "Top Area",
-    subtitle: "Localities with the best overall ratings",
-    types: null,
+    title: "Trending Area",
+    subtitle: "Top localities in Gurugram",
+    types: ["locality"],
+    fromAreas: true,
+    viewAllHref: "/explore?type=locality",
   },
   {
-    id: "pg-flat",
+    id: "pg",
     title: "Top PG and Flat",
-    subtitle: "PGs and apartments residents love",
-    types: ["pg", "flat"],
+    subtitle: "Highest-rated PGs in Gurugram",
+    types: ["pg"],
+    fromAreas: true,
+    viewAllHref: "/explore?type=pg",
   },
   {
     id: "sector",
     title: "Top Sectors",
-    subtitle: "Sectors ranked by community feedback",
+    subtitle: "Sectors in Gurugram",
     types: ["sector"],
+    fromAreas: true,
+    viewAllHref: "/explore?type=sector",
   },
 ];
 
@@ -91,6 +99,82 @@ function getAreaOnlyEntity(review, areasBySlug) {
     areaSlug: review.areaSlug,
     key: `area::${review.areaSlug}`,
   };
+}
+
+function buildReviewStatsByAreaSlug(reviews = []) {
+  const counts = new Map();
+  const ratings = new Map();
+
+  for (const review of reviews) {
+    const slug = review.areaSlug;
+    if (!slug) continue;
+
+    counts.set(slug, (counts.get(slug) || 0) + 1);
+
+    const bucket = ratings.get(slug) || { sum: 0, count: 0 };
+    bucket.sum += Number(review.rating) || 0;
+    bucket.count += 1;
+    ratings.set(slug, bucket);
+  }
+
+  const avgBySlug = new Map();
+  for (const [slug, bucket] of ratings) {
+    if (bucket.count > 0) {
+      avgBySlug.set(slug, bucket.sum / bucket.count);
+    }
+  }
+
+  return { counts, avgBySlug };
+}
+
+/** Top carousel from area listings (Supabase) + community review counts */
+export function aggregateTopAreasFromList(
+  areas,
+  sectionTypes,
+  limit = 10,
+  reviews = []
+) {
+  const types = sectionTypes || [];
+  const { counts: communityCounts, avgBySlug: communityAvg } =
+    buildReviewStatsByAreaSlug(reviews);
+
+  const ranked = areas
+    .filter((area) => types.includes(area.type))
+    .map((area) => {
+      const googleCount = Number(area.totalReviews) || 0;
+      const communityCount = communityCounts.get(area.slug) || 0;
+      const reviewCount = communityCount > 0 ? communityCount : googleCount;
+
+      let avgRating = Number(area.overallRating) || 0;
+      if (communityCount > 0 && communityAvg.has(area.slug)) {
+        avgRating = communityAvg.get(area.slug);
+      }
+
+      const displayRating = avgRating > 0 ? avgRating : 4;
+
+      return {
+        key: `area::${area.slug}`,
+        type: area.type,
+        name: area.name,
+        nameSlug: area.slug,
+        areaSlug: area.slug,
+        areaName: area.name,
+        city: area.city || "Gurugram",
+        sector: area.sector || null,
+        image: area.image || null,
+        avgRating: displayRating,
+        reviewCount,
+        communityReviewCount: communityCount,
+        googleReviewCount: googleCount,
+        icon: TYPE_ICONS[area.type] || "bed",
+        score: rankScore(displayRating, reviewCount),
+        href: `/area/${area.slug}`,
+      };
+    })
+    .sort((a, b) => b.score - a.score || b.reviewCount - a.reviewCount)
+    .slice(0, limit);
+
+  return ranked;
 }
 
 export function aggregateTopEntities(reviews, areas, sectionTypes, limit = 8) {

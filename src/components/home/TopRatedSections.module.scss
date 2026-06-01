@@ -1,13 +1,14 @@
 @use "@/styles/variables" as *;
-@use "@/styles/mixins" as *;
+
+$slide-gap: 1rem;
 
 .wrapper {
   display: flex;
   flex-direction: column;
-  gap: 4rem;
+  gap: 3.5rem;
 
   @media (max-width: 768px) {
-    gap: 3rem;
+    gap: 2.75rem;
   }
 }
 
@@ -16,141 +17,159 @@
 }
 
 .section {
-  margin-bottom: 0;
-}
-
-.header {
-  @include flex-between;
-  align-items: flex-end;
-  margin-bottom: 1.5rem;
-  flex-wrap: wrap;
-  gap: 1rem;
-}
-
-.title {
-  font-size: 1.75rem;
-  font-weight: 800;
-  letter-spacing: -0.02em;
-  margin-bottom: 0.35rem;
+  padding: 2rem 1.25rem;
+  border-radius: $radius-2xl;
+  background: linear-gradient(
+    165deg,
+    rgba(15, 21, 36, 0.98) 0%,
+    rgba(10, 14, 26, 1) 55%,
+    rgba(12, 18, 32, 0.98) 100%
+  );
+  border: 1px solid rgba(125, 211, 252, 0.08);
+  box-shadow:
+    0 24px 64px rgba(0, 0, 0, 0.35),
+    inset 0 1px 0 rgba(255, 255, 255, 0.04);
 
   @media (min-width: 768px) {
-    font-size: 2rem;
+    padding: 2.25rem 2rem;
   }
-
-  :global(.light) & {
-    color: $color-on-surface;
-  }
-
-  :global(.dark) & {
-    color: $color-on-surface-dark;
-  }
-}
-
-.subtitle {
-  font-size: 0.875rem;
-  font-weight: 500;
-
-  :global(.light) & {
-    color: $color-on-surface-variant;
-  }
-
-  :global(.dark) & {
-    color: $color-on-surface-variant-dark;
-  }
-}
-
-.viewAll {
-  display: flex;
-  align-items: center;
-  font-size: 0.875rem;
-  font-weight: 700;
-  text-decoration: none;
-  gap: 0.35rem;
-  transition: gap 0.2s;
-
-  :global(.light) & {
-    color: $color-blue-deep;
-  }
-
-  :global(.dark) & {
-    color: $color-primary;
-  }
-
-  &:hover .arrow {
-    transform: translateX(4px);
-  }
-}
-
-.arrow {
-  width: 1rem;
-  height: 1rem;
-  transition: transform 0.2s;
 }
 
 .carousel {
   position: relative;
-  padding: 0 2.75rem;
+  width: 100%;
+}
 
-  @media (max-width: 640px) {
-    padding: 0 2.25rem;
+.sectionHeader {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 1.25rem;
+  margin-bottom: 1.5rem;
+}
+
+.titleBlock {
+  flex: 1;
+  min-width: 0;
+}
+
+.title {
+  margin: 0 0 0.35rem;
+  font-size: 1.75rem;
+  font-weight: 800;
+  letter-spacing: -0.03em;
+  color: #fff;
+  line-height: 1.15;
+
+  @media (min-width: 768px) {
+    font-size: 2rem;
   }
 }
 
-.carouselContent {
-  margin-left: -1rem;
+.subtitle {
+  margin: 0 0 0.75rem;
+  font-size: 0.875rem;
+  font-weight: 500;
+  color: rgba(160, 180, 196, 0.85);
+  max-width: 36rem;
 }
 
-.carouselItem {
-  flex-basis: auto;
-  padding-left: 1rem;
+.viewAll {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.35rem;
+  font-size: 0.8125rem;
+  font-weight: 700;
+  color: $color-primary;
+  text-decoration: none;
+  transition: gap 0.2s, color 0.2s;
+
+  &:hover {
+    gap: 0.5rem;
+    color: lighten($color-primary, 8%);
+  }
 }
 
-.navBtn,
-.navPrev,
-.navNext {
-  top: 50%;
-  left: auto;
-  right: auto;
-  transform: translateY(-50%);
-  z-index: 2;
-  border-radius: 999px;
+.arrow {
+  width: 0.9rem;
+  height: 0.9rem;
+}
+
+.navGroup {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  flex-shrink: 0;
+}
+
+.navBtn {
+  position: static !important;
+  transform: none !important;
+  width: 2.75rem;
+  height: 2.75rem;
+  border-radius: 50%;
+  border: 1px solid rgba(255, 255, 255, 0.14) !important;
+  background: rgba(20, 28, 46, 0.85) !important;
+  color: rgba(224, 232, 240, 0.95) !important;
   backdrop-filter: blur(8px);
-  transition: opacity 0.2s, transform 0.2s, box-shadow 0.2s;
+  transition:
+    background 0.2s,
+    border-color 0.2s,
+    box-shadow 0.2s,
+    opacity 0.2s;
+
+  &:hover:not(:disabled) {
+    background: rgba(30, 40, 62, 0.95) !important;
+    border-color: rgba(125, 211, 252, 0.35) !important;
+    box-shadow: 0 0 16px rgba(125, 211, 252, 0.15);
+    color: #fff !important;
+  }
 
   &:disabled {
     opacity: 0.35;
     pointer-events: none;
   }
+}
 
-  :global(.light) & {
-    @include neo-outset-sm;
-    background: rgba($color-bg-light, 0.92);
-    border-color: rgba($color-primary, 0.12);
-    color: $color-blue-deep;
+.carouselViewport {
+  overflow: hidden;
+  width: 100%;
+  isolation: isolate;
+}
 
-    &:hover:not(:disabled) {
-      @include neo-inset-sm;
-      color: $color-primary;
-    }
-  }
+.carouselTrack {
+  margin-left: 0 !important;
+  display: flex;
+  align-items: stretch;
+  touch-action: pan-y pinch-zoom;
+}
 
-  :global(.dark) & {
-    @include neo-outset-sm-dark;
-    background: rgba($color-bg-dark, 0.88);
-    border-color: rgba($color-primary, 0.2);
-    color: $color-primary;
+.carouselItem {
+  min-width: 0 !important;
+  flex: 0 0 100% !important;
+  max-width: 100% !important;
+  padding: 0 !important;
+  box-sizing: border-box;
+  display: flex;
+  align-items: stretch;
 
-    &:hover:not(:disabled) {
-      @include neo-inset-sm-dark;
-      box-shadow: 0 0 12px rgba($color-primary, 0.15);
-    }
+  @media (min-width: 768px) {
+    flex: 0 0 calc(100% / 3) !important;
+    max-width: calc(100% / 3) !important;
   }
 }
 
-.navPrev {
-  left: 0;
-}
+.slideInner {
+  display: flex;
+  width: 100%;
+  min-width: 0;
+  height: 100%;
+  padding: 0 calc($slide-gap / 2);
+  box-sizing: border-box;
 
-.navNext {
-  right: 0;
+  > * {
+    flex: 1;
+    width: 100%;
+    min-width: 0;
+  }
 }
