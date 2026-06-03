@@ -1,4 +1,5 @@
 @use "@/styles/variables" as *;
+@use "@/styles/mixins" as *;
 
 .page {
   max-width: 1440px;
@@ -12,6 +13,10 @@
 
 .header {
   margin-bottom: 3rem;
+
+  @include mobile {
+    margin-bottom: 1.5rem;
+  }
 }
 
 .title {

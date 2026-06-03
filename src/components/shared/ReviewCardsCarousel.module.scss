@@ -60,17 +60,22 @@
   padding: 0 !important;
   box-sizing: border-box;
 
-  @media (min-width: 640px) {
-    flex: 0 0 92% !important;
-    max-width: 92% !important;
-    padding: 0 0.4rem !important;
-    flex: 0 0 50% !important;
-    max-width: 50% !important;
+  @media (min-width: 640px) and (max-width: 767.98px) {
+    flex: 0 0 88% !important;
+    max-width: 88% !important;
+    padding: 0 0.35rem !important;
   }
 
-  @media (min-width: 1024px) {
+  @media (min-width: 768px) and (max-width: 1249.98px) {
+    flex: 0 0 50% !important;
+    max-width: 50% !important;
+    padding: 0 0.4rem !important;
+  }
+
+  @media (min-width: 1250px) {
     flex: 0 0 33.333% !important;
     max-width: 33.333% !important;
+    padding: 0 0.4rem !important;
   }
 
   > * {
@@ -182,11 +187,16 @@
 .wrapThreeUp {
   .itemThreeUp {
     @media (min-width: 640px) and (max-width: 767.98px) {
-      flex: 0 0 92% !important;
-      max-width: 92% !important;
+      flex: 0 0 88% !important;
+      max-width: 88% !important;
     }
 
-    @media (min-width: 768px) {
+    @media (min-width: 768px) and (max-width: 1249.98px) {
+      flex: 0 0 50% !important;
+      max-width: 50% !important;
+    }
+
+    @media (min-width: 1250px) {
       flex: 0 0 calc(100% / 3) !important;
       max-width: calc(100% / 3) !important;
     }

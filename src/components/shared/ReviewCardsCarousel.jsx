@@ -73,7 +73,9 @@ export default function ReviewCardsCarousel({
   }
 
   const isThreeUp = variant === "threeUp";
-  const showNav = isThreeUp ? reviews.length > 3 : reviews.length > 1;
+  const showNav = isThreeUp
+    ? reviews.length > 2
+    : reviews.length > 1;
 
   return (
     <div className={cn(styles.wrap, isThreeUp && styles.wrapThreeUp)}>
