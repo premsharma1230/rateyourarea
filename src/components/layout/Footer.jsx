@@ -89,8 +89,7 @@ export default function Footer() {
               Stay Informed
             </h5>
             <p className={styles.newsletterText}>
-              Get weekly insights on the best and worst performing areas in your
-              city.
+            Get alerts when a new review is posted for your society or area.
             </p>
             <form className={styles.newsletterForm}>
               <input

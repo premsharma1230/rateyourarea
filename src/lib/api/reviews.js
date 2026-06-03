@@ -1,5 +1,4 @@
-import { supabase } from "@/backend/lib/supabase";
-import { normalizeReviewTargetType } from "@/lib/review-target";
+import { supabase } from "@/lib/supabase";
 
 const RESIDENT_LABELS = {
   owner: "Owner",
@@ -26,110 +25,30 @@ function mapFormResidentType(residentType) {
   return map[residentType] || residentType;
 }
 
-function toOptionalRating(value) {
-  const rating = Number(value);
-  return rating >= 1 && rating <= 5 ? rating : null;
-}
-
-function isMissingColumnError(error) {
-  const message = error?.message?.toLowerCase() || "";
-  const code = error?.code || "";
-  return (
-    code === "PGRST204" ||
-    message.includes("column") ||
-    message.includes("schema cache")
-  );
-}
-
-function buildReviewInsert(
-  reviewData,
-  {
-    userId = null,
-    isAnonymous = true,
-    reviewerDisplayName = null,
-    includeExtended = true,
-    includeReviewerName = true,
-  } = {}
-) {
-  const row = {
+function buildReviewInsert(reviewData, { userId = null, isAnonymous = true } = {}) {
+  return {
     area_id: reviewData.areaId || null,
     area_slug: reviewData.areaSlug,
     user_id: userId,
     is_anonymous: isAnonymous,
-    resident_type: reviewData.residentType
-      ? mapFormResidentType(reviewData.residentType)
-      : null,
+    resident_type: mapFormResidentType(reviewData.residentType),
     resident_since: reviewData.residentSince || null,
-    duration: reviewData.duration || null,
-    rating_overall: toOptionalRating(reviewData.ratings?.overall),
-    rating_water: toOptionalRating(reviewData.ratings.water),
-    rating_power: toOptionalRating(reviewData.ratings.power),
-    rating_security: toOptionalRating(reviewData.ratings.security),
-    rating_maintenance: toOptionalRating(reviewData.ratings.maintenance),
-    rating_internet: toOptionalRating(reviewData.ratings.internet),
-    rating_parking: toOptionalRating(reviewData.ratings.parking),
-    rating_schools: toOptionalRating(reviewData.ratings.schools),
-    rating_builder_trust: toOptionalRating(reviewData.ratings.builderTrust),
-    pros: reviewData.pros?.trim() || null,
-    cons: reviewData.cons?.trim() || null,
+    duration: reviewData.duration,
+    rating_overall: reviewData.ratings.overall,
+    rating_water: reviewData.ratings.water || null,
+    rating_power: reviewData.ratings.power || null,
+    rating_security: reviewData.ratings.security || null,
+    rating_maintenance: reviewData.ratings.maintenance || null,
+    rating_internet: reviewData.ratings.internet || null,
+    rating_parking: reviewData.ratings.parking || null,
+    rating_schools: reviewData.ratings.schools || null,
+    rating_builder_trust: reviewData.ratings.builderTrust || null,
+    pros: reviewData.pros || null,
+    cons: reviewData.cons || null,
     tags: reviewData.tags || [],
-    recommended:
-      reviewData.recommended === true || reviewData.recommended === false
-        ? reviewData.recommended
-        : null,
+    recommended: reviewData.recommended ?? true,
     photo_url: reviewData.photoUrl?.trim() || null,
   };
-
-  if (includeExtended) {
-    if (reviewData.reviewTargetType) {
-      row.review_target_type = normalizeReviewTargetType(
-        reviewData.reviewTargetType
-      );
-    }
-    const targetName = reviewData.reviewTargetName?.trim();
-    if (targetName) {
-      row.review_target_name = targetName;
-    }
-  }
-
-  if (includeReviewerName && reviewerDisplayName?.trim()) {
-    row.reviewer_display_name = reviewerDisplayName.trim();
-  }
-
-  return row;
-}
-
-async function insertReview(reviewData, options) {
-  return supabase
-    .from("reviews")
-    .insert([buildReviewInsert(reviewData, options)])
-    .select();
-}
-
-async function submitReviewInsert(reviewData, options) {
-  let { data, error } = await insertReview(reviewData, {
-    ...options,
-    includeExtended: true,
-    includeReviewerName: true,
-  });
-
-  if (error && isMissingColumnError(error)) {
-    ({ data, error } = await insertReview(reviewData, {
-      ...options,
-      includeExtended: false,
-      includeReviewerName: true,
-    }));
-  }
-
-  if (error && isMissingColumnError(error)) {
-    ({ data, error } = await insertReview(reviewData, {
-      ...options,
-      includeExtended: false,
-      includeReviewerName: false,
-    }));
-  }
-
-  return { data, error };
 }
 
 export function mapDbReviewToClient(row, areaName = null) {
@@ -180,36 +99,39 @@ export function mapDbReviewToClient(row, areaName = null) {
     pros: row.pros,
     cons: row.cons,
     issues: row.tags || [],
-    reviewTargetType: row.review_target_type || null,
-    reviewTargetName: row.review_target_name || null,
     tags,
     recommended: row.recommended,
     date: row.created_at
       ? new Date(row.created_at).toISOString().split("T")[0]
       : new Date().toISOString().split("T")[0],
     avatarVariant: rating <= 2.5 ? "error" : "primary",
-    isUserReview: row.is_anonymous === false,
-    isAnonymous: row.is_anonymous !== false,
-    reviewerDisplayName: row.reviewer_display_name || null,
-    userId: row.user_id || null,
+    isUserReview: !row.is_anonymous,
+    isAnonymous: row.is_anonymous,
     photoUrl: row.photo_url || null,
   };
 }
 
 export async function submitAnonymousReview(reviewData) {
-  return submitReviewInsert(reviewData, { isAnonymous: true });
+  const { data, error } = await supabase
+    .from("reviews")
+    .insert([buildReviewInsert(reviewData, { isAnonymous: true })])
+    .select();
+
+  return { data, error };
 }
 
-export async function submitUserReview(
-  reviewData,
-  userId,
-  reviewerDisplayName = null
-) {
-  return submitReviewInsert(reviewData, {
-    userId,
-    isAnonymous: false,
-    reviewerDisplayName,
-  });
+export async function submitUserReview(reviewData, userId) {
+  const { data, error } = await supabase
+    .from("reviews")
+    .insert([
+      buildReviewInsert(reviewData, {
+        userId,
+        isAnonymous: false,
+      }),
+    ])
+    .select();
+
+  return { data, error };
 }
 
 export async function getAreaReviews(areaSlug, sortBy = "newest") {

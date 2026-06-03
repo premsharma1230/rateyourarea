@@ -12,12 +12,12 @@ export const metadata = {
 export default function ReviewPage() {
   return (
     <div className={styles.page}>
-      <div className={styles.header}>
+      <header className={styles.header}>
         <h1 className={styles.title}>Share Your Experience</h1>
         <p className={styles.subtitle}>
-          Help others make informed decisions about where to live.
+        Help others find their perfect home by sharing your authentic experience.
         </p>
-      </div>
+      </header>
       <Suspense fallback={null}>
         <AnonymousReviewForm />
       </Suspense>

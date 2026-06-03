@@ -49,7 +49,7 @@ export default function Header() {
               />
             </Link>
             <div className={styles.searchWrap}>
-              <SearchBar submitToExplore placeholder="Search area, city..." />
+              <SearchBar submitToExplore />
             </div>
           </div>
 

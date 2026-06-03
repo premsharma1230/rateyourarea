@@ -4,7 +4,7 @@ import { normalizeReviewTargetType } from "@/lib/review-target";
 export const TOP_SECTIONS = [
   {
     id: "society",
-    title: "Elite Society",
+    title: "Top Society",
     subtitle: "Highest-rated societies in Gurugram",
     types: ["society"],
     fromAreas: true,
@@ -162,6 +162,9 @@ export function aggregateTopAreasFromList(
         city: area.city || "Gurugram",
         sector: area.sector || null,
         image: area.image || null,
+        address: area.address || null,
+        lat: area.lat ?? null,
+        lng: area.lng ?? null,
         avgRating: displayRating,
         reviewCount,
         communityReviewCount: communityCount,

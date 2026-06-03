@@ -1,5 +1,4 @@
-const DEFAULT_IMAGE =
-  "https://images.unsplash.com/photo-1600596542815-ffad4c1539a9?w=800&q=80";
+import { pickImageForType } from "@/lib/entity-images";
 
 const DEFAULT_RATINGS = {
   water: 4,
@@ -33,7 +32,13 @@ export function mapDbAreaToClient(row) {
       row.description?.trim() ||
       row.address?.trim() ||
       `${row.name} in ${row.city ?? "Gurugram"}`,
-    image: row.image_url || DEFAULT_IMAGE,
+    image:
+      row.image_url?.trim() ||
+      pickImageForType(row.type ?? "locality", row.slug || row.name),
+    address: row.address?.trim() || null,
+    lat: row.lat != null ? Number(row.lat) : null,
+    lng: row.lng != null ? Number(row.lng) : null,
+    mapsUrl: row.maps_url?.trim() || null,
     tags: row.type ? [row.type] : [],
     pros: [],
     cons: [],

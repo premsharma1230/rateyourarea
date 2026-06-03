@@ -22,6 +22,7 @@ import {
   formatResidentSince,
   resolveAreaSlug,
 } from "@/backend/api/profiles";
+import { sanitizePincodeInput } from "@/lib/utils";
 import styles from "./LoginModal.module.scss";
 
 function hasProfileExtras({
@@ -422,8 +423,13 @@ export default function LoginModal({ open, onOpenChange }) {
                     <Label className={styles.label}>Pincode</Label>
                     <Input
                       placeholder="122001"
+                      inputMode="numeric"
+                      autoComplete="postal-code"
+                      maxLength={6}
                       value={signupPincode}
-                      onChange={(e) => setSignupPincode(e.target.value)}
+                      onChange={(e) =>
+                        setSignupPincode(sanitizePincodeInput(e.target.value))
+                      }
                     />
                   </div>
                   <div className={styles.field}>

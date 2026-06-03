@@ -1,6 +1,8 @@
 const REVIEWS_KEY = "rateyourarea_reviews";
 const AREAS_KEY = "rateyourarea_custom_areas";
 
+import { pickImageForType } from "@/lib/entity-images";
+
 const DEFAULT_IMAGE =
   "https://images.unsplash.com/photo-1560518883-ce09059eeffa?w=800&q=80";
 
@@ -27,6 +29,7 @@ export function createCustomArea({
   address = null,
   lat = null,
   lng = null,
+  image = null,
 }) {
   const baseSlug = slugify(name);
   const existing = getCustomAreas();
@@ -66,7 +69,7 @@ export function createCustomArea({
       osmPlaceId || googlePlaceId
         ? `Listed via OpenStreetMap in ${city}.`
         : `Community-added ${type} in ${city}.`,
-    image: DEFAULT_IMAGE,
+    image: image?.trim() || pickImageForType(type, slug),
     tags:
       osmPlaceId || googlePlaceId
         ? ["OpenStreetMap", "Community added"]
@@ -117,6 +120,7 @@ export function saveReview(review) {
 }
 
 const ISSUE_TAG_MAP = {
+  Pests: { label: "Pests", icon: "bug", variant: "error" },
   "Water supply issues": { label: "Water issues", icon: "droplets", variant: "error" },
   "Power cuts": { label: "Power cuts", icon: "zap", variant: "error" },
   "Security concerns": { label: "Security", icon: "shield", variant: "error" },
@@ -144,7 +148,9 @@ export function buildReviewFromForm(
   { isAnonymous = true, reviewerDisplayName = null } = {}
 ) {
   const rating = form.ratings.overall || 0;
-  const quote = "Shared an experience about this area.";
+  const reviewBody = form.reviewText?.trim() || "";
+  const quote =
+    reviewBody || "Shared an experience about this area.";
 
   const tags = (form.issues || [])
     .map((issue) => ISSUE_TAG_MAP[issue])
@@ -170,7 +176,7 @@ export function buildReviewFromForm(
     duration: DURATION_LABELS[form.duration] || form.duration,
     pincode: form.pincode,
     quote,
-    pros: "",
+    pros: reviewBody,
     cons: "",
     issues: form.issues,
     tags,
@@ -180,6 +186,7 @@ export function buildReviewFromForm(
     isUserReview: !isAnonymous,
     isAnonymous,
     reviewerDisplayName: reviewerDisplayName?.trim() || null,
+    photoUrl: form.photoUrl?.trim() || null,
   };
 }
 

@@ -171,6 +171,7 @@ export function CommunityDataProvider({ children }) {
           address: newAreaMeta.address || null,
           lat: newAreaMeta.lat ?? null,
           lng: newAreaMeta.lng ?? null,
+          image: form.photoUrl || null,
         });
         saveCustomArea(customArea);
         area = customArea;
@@ -186,10 +187,11 @@ export function CommunityDataProvider({ children }) {
           residentSince: form.residentSince || null,
           duration: form.duration,
           ratings: form.ratings,
-          pros: null,
+          pros: form.reviewText?.trim() || null,
           cons: null,
           tags: form.issues || [],
           recommended: form.recommend,
+          photoUrl: form.photoUrl || null,
         };
 
         const reviewerDisplayName = resolveReviewerDisplayName(user);

@@ -1,6 +1,6 @@
 @use "@/styles/variables" as *;
 
-$slide-gap: 1rem;
+$slide-gap: 0.75rem;
 
 .wrapper {
   display: flex;
@@ -25,10 +25,10 @@ $slide-gap: 1rem;
     rgba(10, 14, 26, 1) 55%,
     rgba(12, 18, 32, 0.98) 100%
   );
-  border: 1px solid rgba(125, 211, 252, 0.08);
+  border: 1px solid rgba(125, 211, 252, 0.1);
   box-shadow:
-    0 24px 64px rgba(0, 0, 0, 0.35),
-    inset 0 1px 0 rgba(255, 255, 255, 0.04);
+    0 10px 36px rgba(0, 0, 0, 0.22),
+    inset 0 1px 0 rgba(255, 255, 255, 0.05);
 
   @media (min-width: 768px) {
     padding: 2.25rem 2rem;
@@ -45,7 +45,7 @@ $slide-gap: 1rem;
   align-items: flex-start;
   justify-content: space-between;
   gap: 1.25rem;
-  margin-bottom: 1.5rem;
+  margin-bottom: 1.125rem;
 }
 
 .titleBlock {
@@ -121,7 +121,7 @@ $slide-gap: 1rem;
   &:hover:not(:disabled) {
     background: rgba(30, 40, 62, 0.95) !important;
     border-color: rgba(125, 211, 252, 0.35) !important;
-    box-shadow: 0 0 16px rgba(125, 211, 252, 0.15);
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.2);
     color: #fff !important;
   }
 
@@ -146,16 +146,26 @@ $slide-gap: 1rem;
 
 .carouselItem {
   min-width: 0 !important;
-  flex: 0 0 100% !important;
-  max-width: 100% !important;
+  flex: 0 0 72% !important;
+  max-width: 72% !important;
   padding: 0 !important;
   box-sizing: border-box;
   display: flex;
   align-items: stretch;
 
-  @media (min-width: 768px) {
-    flex: 0 0 calc(100% / 3) !important;
-    max-width: calc(100% / 3) !important;
+  @media (min-width: 640px) {
+    flex: 0 0 46% !important;
+    max-width: 46% !important;
+  }
+
+  @media (min-width: 1024px) {
+    flex: 0 0 30% !important;
+    max-width: 30% !important;
+  }
+
+  @media (min-width: 1280px) {
+    flex: 0 0 24% !important;
+    max-width: 24% !important;
   }
 }
 

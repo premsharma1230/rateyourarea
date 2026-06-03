@@ -2,13 +2,7 @@
 
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
-import {
-  Select,
-  SelectContent,
-  SelectItem,
-  SelectTrigger,
-  SelectValue,
-} from "@/components/ui/select";
+import { FormSelect, FormSelectItem } from "@/components/forms/FormSelect";
 import {
   REVIEW_TARGET_DETAIL_FIELDS,
   REVIEW_TARGET_TYPES,
@@ -30,18 +24,17 @@ export default function ReviewTargetFields({ type, name, onTypeChange, onNameCha
       <div className={styles.row}>
         <div className={styles.field}>
           <Label className={styles.smallLabel}>Type</Label>
-          <Select value={normalizedType} onValueChange={onTypeChange}>
-            <SelectTrigger className="w-full">
-              <SelectValue placeholder="Review type" />
-            </SelectTrigger>
-            <SelectContent>
-              {REVIEW_TARGET_TYPES.map((t) => (
-                <SelectItem key={t.id} value={t.id}>
-                  {t.label}
-                </SelectItem>
-              ))}
-            </SelectContent>
-          </Select>
+          <FormSelect
+            value={normalizedType}
+            onValueChange={onTypeChange}
+            placeholder="Review type"
+          >
+            {REVIEW_TARGET_TYPES.map((t) => (
+              <FormSelectItem key={t.id} value={t.id}>
+                {t.label}
+              </FormSelectItem>
+            ))}
+          </FormSelect>
         </div>
         <div className={styles.field}>
           <Label className={styles.smallLabel}>{field.label}</Label>
