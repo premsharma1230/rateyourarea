@@ -1,3 +1,4 @@
+import { Suspense } from "react";
 import { Plus_Jakarta_Sans, Inter } from "next/font/google";
 
 import Header from "@/components/layout/Header";
@@ -7,6 +8,7 @@ import { ThemeProvider } from "@/components/providers/ThemeProvider";
 import { AuthProvider } from "@/components/providers/AuthProvider";
 import { CommunityDataProvider } from "@/components/providers/CommunityDataProvider";
 import { ToastProvider } from "@/components/ui/ToastProvider";
+import AuthUrlHandler from "@/components/auth/AuthUrlHandler";
 import "./globals.css";
 import "@/styles/globals.scss";
 
@@ -35,6 +37,9 @@ export default function RootLayout({ children }) {
         <ThemeProvider>
           <ToastProvider>
             <AuthProvider>
+              <Suspense fallback={null}>
+                <AuthUrlHandler />
+              </Suspense>
               <CommunityDataProvider>
                 <Header />
                 <main className="site-main flex-1">{children}</main>

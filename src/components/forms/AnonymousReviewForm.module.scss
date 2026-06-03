@@ -775,29 +775,51 @@ $step-label-future: rgba($color-on-surface-variant-dark, 0.75);
   cursor: pointer;
   padding: 0.125rem;
   line-height: 0;
-  color: rgba($color-primary, 0.28);
-  transition:
-    color 0.2s ease,
-    filter 0.2s ease,
-    transform 0.15s ease;
+  color: rgba($color-primary, 0.3);
+  transition: color 0.2s ease;
 
-  :global(html.dark) & {
-    color: rgba($color-on-surface-dark, 0.45);
+  :global(html.dark) &:not(.filled) {
+    color: rgba($color-on-surface-variant-dark, 0.45);
   }
 
-  :global(html.light) & {
+  :global(html.light) &:not(.filled) {
     color: rgba($color-on-surface-variant, 0.4);
+  }
+
+  &:hover .starIcon,
+  &:hover .starIconSm,
+  &:hover .starIconLg {
+    color: $color-primary;
+    stroke: $color-primary;
+  }
+
+  :global(html.light) &:hover .starIcon,
+  :global(html.light) &:hover .starIconSm,
+  :global(html.light) &:hover .starIconLg {
+    color: $color-blue-deep;
+    stroke: $color-blue-deep;
   }
 
   &.filled {
     color: $color-primary;
-    filter: none;
+
+    :global(html.light) & {
+      color: $color-blue-deep;
+    }
+
+    .starIcon,
+    .starIconSm,
+    .starIconLg {
+      filter: drop-shadow(0 0 6px rgba($color-primary, 0.45));
+    }
+
+    :global(html.light) & .starIcon,
+    :global(html.light) & .starIconSm,
+    :global(html.light) & .starIconLg {
+      filter: drop-shadow(0 0 5px rgba($color-blue-deep, 0.35));
+    }
   }
 
-  &:hover {
-    color: $color-primary;
-    transform: scale(1.06);
-  }
 }
 
 .formNavFooter {

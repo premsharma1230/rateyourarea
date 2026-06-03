@@ -54,7 +54,7 @@ export function AuthProvider({ children }) {
       setUser(mapSupabaseUser(supabaseUser));
       setReady(true);
       if (event === "SIGNED_IN" && supabaseUser) {
-        showToast("Login successful");
+        showToast("Signed in successfully");
       }
     });
 

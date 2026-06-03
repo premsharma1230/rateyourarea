@@ -110,7 +110,7 @@ function StarRating({ value, onChange, className, size = "md" }) {
         >
           <Star
             className={iconClass}
-            strokeWidth={1.5}
+            strokeWidth={2}
             fill={n <= value ? "currentColor" : "none"}
           />
         </button>

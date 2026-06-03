@@ -1,27 +1,26 @@
-import { createServerClient } from "@supabase/auth-helpers-nextjs";
+import { createServerClient } from "@supabase/ssr";
 import { cookies } from "next/headers";
 
+import { getSupabaseAnonKey, getSupabaseUrl } from "@/backend/lib/supabase-env";
+
+/** Server Components / route handlers — reads session from cookies */
 export async function createServerSupabaseClient() {
   const cookieStore = await cookies();
 
-  return createServerClient(
-    process.env.NEXT_PUBLIC_SUPABASE_URL,
-    process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY,
-    {
-      cookies: {
-        getAll() {
-          return cookieStore.getAll();
-        },
-        setAll(cookiesToSet) {
-          try {
-            cookiesToSet.forEach(({ name, value, options }) => {
-              cookieStore.set(name, value, options);
-            });
-          } catch {
-            // setAll can run from a Server Component where cookies are read-only
-          }
-        },
+  return createServerClient(getSupabaseUrl(), getSupabaseAnonKey(), {
+    cookies: {
+      getAll() {
+        return cookieStore.getAll();
       },
-    }
-  );
+      setAll(cookiesToSet) {
+        try {
+          cookiesToSet.forEach(({ name, value, options }) => {
+            cookieStore.set(name, value, options);
+          });
+        } catch {
+          // Called from a Server Component where cookies are read-only
+        }
+      },
+    },
+  });
 }
