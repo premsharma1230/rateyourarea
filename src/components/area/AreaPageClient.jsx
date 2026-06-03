@@ -5,6 +5,7 @@ import Link from "next/link";
 import { notFound } from "next/navigation";
 import { AlertTriangle, MapPin, MessageSquarePlus } from "lucide-react";
 
+import { usePlacePhoto } from "@/hooks/usePlacePhoto";
 import AreaReviews from "@/components/area/AreaReviews";
 import { useCommunityData } from "@/components/providers/CommunityDataProvider";
 import AreaMap from "@/components/shared/AreaMap";
@@ -34,6 +35,19 @@ export default function AreaPageClient({ slug, staticArea }) {
   const { getAreaBySlug, getReviewsForArea, ready } = useCommunityData();
   const area = staticArea || (ready ? getAreaBySlug(slug) : null);
   const reviews = ready ? getReviewsForArea(slug) : [];
+  const { photoUrl } = usePlacePhoto(
+    area
+      ? {
+          type: area.type,
+          slug: area.slug,
+          name: area.name,
+          image: area.image,
+          address: area.address,
+          lat: area.lat,
+          lng: area.lng,
+        }
+      : null
+  );
 
   if (ready && !area) notFound();
 
@@ -56,7 +70,7 @@ export default function AreaPageClient({ slug, staticArea }) {
       <div className={styles.hero}>
         <div className={styles.heroImage}>
           <Image
-            src={area.image}
+            src={photoUrl}
             alt={area.name}
             fill
             className={styles.heroImg}

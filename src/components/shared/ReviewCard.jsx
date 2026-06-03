@@ -1,5 +1,6 @@
 "use client";
 
+import Image from "next/image";
 import {
   UserRound,
   Shield,
@@ -113,6 +114,19 @@ export default function ReviewCard({ review, detailed = false }) {
       </div>
 
       <p className={styles.quote}>&ldquo;{review.quote}&rdquo;</p>
+
+      {review.photoUrl ? (
+        <div className={styles.reviewPhotoWrap}>
+          <Image
+            src={review.photoUrl}
+            alt={`Photo for ${review.areaName || "this area"}`}
+            width={640}
+            height={360}
+            className={styles.reviewPhoto}
+            unoptimized={review.photoUrl.startsWith("blob:")}
+          />
+        </div>
+      ) : null}
 
       {detailed && review.detailedRatings && (
         <div className={styles.ratingGrid}>

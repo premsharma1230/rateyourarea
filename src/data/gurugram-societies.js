@@ -1,8 +1,6 @@
 import { slugify } from "@/lib/client-db";
+import { pickImageForType } from "@/lib/entity-images";
 import { GURUGRAM_SECTOR_IDS } from "./gurugram-sectors";
-
-const DEFAULT_IMAGE =
-  "https://images.unsplash.com/photo-1560518883-ce09059eeffa?w=800&q=80";
 
 const ZERO_RATINGS = {
   water: 0,
@@ -197,8 +195,9 @@ export const KNOWN_SOCIETIES_BY_SECTOR = {
 
 function createSocietyArea(name, sectorId) {
   const baseSlug = slugify(name);
+  const slug = `${baseSlug}-sec-${String(sectorId).toLowerCase()}`;
   return {
-    slug: `${baseSlug}-sec-${String(sectorId).toLowerCase()}`,
+    slug,
     name,
     city: "Gurugram",
     sector: String(sectorId),
@@ -208,7 +207,7 @@ function createSocietyArea(name, sectorId) {
     ratings: { ...ZERO_RATINGS },
     reraComplaints: 0,
     description: `${name} in Sector ${sectorId}, Gurugram.`,
-    image: DEFAULT_IMAGE,
+    image: pickImageForType("society", slug),
     tags: ["Society", `Sector ${sectorId}`],
     pros: [],
     cons: [],

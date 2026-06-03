@@ -7,27 +7,49 @@
 
 .hero {
   position: relative;
-  padding: 2.5rem 1.25rem 2rem;
+  display: flex;
+  align-items: flex-end;
+  min-height: 340px;
+  overflow: hidden;
   border-bottom: 1px solid rgba($color-outline-variant, 0.12);
 
-  :global(.dark) & {
-    background: linear-gradient(
-      180deg,
-      rgba($color-primary, 0.12) 0%,
-      $color-bg-dark 100%
-    );
+  @media (min-width: 768px) {
+    min-height: 400px;
   }
+}
+
+.heroImage {
+  position: absolute;
+  inset: 0;
+  z-index: 0;
+}
+
+.heroImg {
+  object-fit: cover;
+  object-position: center 30%;
+}
+
+.heroOverlay {
+  position: absolute;
+  inset: 0;
+  z-index: 1;
+  pointer-events: none;
+  background: linear-gradient(
+    to top,
+    $color-bg-dark 0%,
+    rgba($color-bg-dark, 0.88) 28%,
+    rgba($color-bg-dark, 0.45) 55%,
+    rgba($color-bg-dark, 0.15) 78%,
+    transparent 100%
+  );
 
   :global(.light) & {
     background: linear-gradient(
-      180deg,
-      rgba($color-primary, 0.08) 0%,
-      $color-bg-light 100%
+      to top,
+      $color-bg-light 0%,
+      rgba($color-bg-light, 0.92) 30%,
+      rgba(15, 23, 42, 0.35) 100%
     );
-  }
-
-  @media (min-width: 768px) {
-    padding: 3.5rem 3rem 2.5rem;
   }
 }
 
@@ -37,25 +59,28 @@
   border-radius: $radius-xl;
   @include flex-center;
   margin-bottom: 1.25rem;
-
-  :global(.dark) & {
-    @include neo-card-dark;
-  }
-
-  :global(.light) & {
-    @include neo-card;
-  }
+  background: rgba(255, 255, 255, 0.12);
+  backdrop-filter: blur(8px);
+  border: 1px solid rgba(255, 255, 255, 0.2);
 }
 
 .icon {
   width: 2rem;
   height: 2rem;
-  color: $color-primary;
+  color: #fff;
 }
 
 .heroContent {
+  position: relative;
+  z-index: 2;
+  width: 100%;
   max-width: 1440px;
   margin: 0 auto;
+  padding: 2.5rem 1.25rem 2rem;
+
+  @media (min-width: 768px) {
+    padding: 3.5rem 3rem 2.5rem;
+  }
 }
 
 .breadcrumb {
@@ -87,36 +112,19 @@
 }
 
 .title {
-  font-size: 2rem;
+  font-size: clamp(1.75rem, 4vw, 2.5rem);
   font-weight: 800;
   letter-spacing: -0.02em;
   margin-bottom: 0.35rem;
-
-  @media (min-width: 768px) {
-    font-size: 2.5rem;
-  }
-
-  :global(.dark) & {
-    color: $color-on-surface-dark;
-  }
-
-  :global(.light) & {
-    color: $color-on-surface;
-  }
+  color: #fff;
+  text-shadow: 0 2px 20px rgba(0, 0, 0, 0.4);
 }
 
 .subtitle {
   font-size: 0.9375rem;
   font-weight: 500;
   margin-bottom: 1.25rem;
-
-  :global(.dark) & {
-    color: $color-on-surface-variant-dark;
-  }
-
-  :global(.light) & {
-    color: $color-on-surface-variant;
-  }
+  color: rgba(255, 255, 255, 0.85);
 }
 
 .meta {

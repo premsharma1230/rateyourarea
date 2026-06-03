@@ -5,13 +5,7 @@ import { Loader2, MapPin, Plus } from "lucide-react";
 
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
-import {
-  Select,
-  SelectContent,
-  SelectItem,
-  SelectTrigger,
-  SelectValue,
-} from "@/components/ui/select";
+import { FormSelect, FormSelectItem } from "@/components/forms/FormSelect";
 import { useCommunityData } from "@/components/providers/CommunityDataProvider";
 import { normalizeSectorId } from "@/data/gurugram-sectors";
 import { parseSectorFromName } from "@/lib/client-db";
@@ -96,7 +90,12 @@ const EMPTY_SELECTION = {
   newAreaMeta: null,
 };
 
-export default function AreaPicker({ value, onChange, onAreaSelect }) {
+export default function AreaPicker({
+  value,
+  onChange,
+  onAreaSelect,
+  hideLabel = false,
+}) {
   const { allAreas } = useCommunityData();
   const [query, setQuery] = useState(value || "");
   const [isCommitted, setIsCommitted] = useState(false);
@@ -373,7 +372,9 @@ export default function AreaPicker({ value, onChange, onAreaSelect }) {
 
   return (
     <div className={styles.wrapper}>
-      <Label className={styles.label}>Your Area</Label>
+      {!hideLabel ? (
+        <Label className={styles.label}>Your Area</Label>
+      ) : null}
       <div className={styles.inputWrap}>
         <MapPin className={styles.icon} aria-hidden />
         <Input
@@ -452,18 +453,17 @@ export default function AreaPicker({ value, onChange, onAreaSelect }) {
           <div className={styles.newRow}>
             <div className={styles.newField}>
               <Label className={styles.smallLabel}>Type</Label>
-              <Select value={newType} onValueChange={handleTypeChange}>
-                <SelectTrigger className="w-full">
-                  <SelectValue placeholder="Area type" />
-                </SelectTrigger>
-                <SelectContent>
-                  {AREA_TYPES.map((t) => (
-                    <SelectItem key={t.id} value={t.id}>
-                      {t.label}
-                    </SelectItem>
-                  ))}
-                </SelectContent>
-              </Select>
+              <FormSelect
+                value={newType}
+                onValueChange={handleTypeChange}
+                placeholder="Area type"
+              >
+                {AREA_TYPES.map((t) => (
+                  <FormSelectItem key={t.id} value={t.id}>
+                    {t.label}
+                  </FormSelectItem>
+                ))}
+              </FormSelect>
             </div>
             <div className={styles.newField}>
               <Label className={styles.smallLabel}>

@@ -19,7 +19,8 @@ import listingStyles from "@/app/listing.module.scss";
 import styles from "./ExplorePage.module.scss";
 
 const DEFAULT_CITY = "Gurugram";
-const PAGE_SIZE = 9;
+/** Full rows on 2/3/4-column grids (12 = 4×3) */
+const PAGE_SIZE = 12;
 
 export default function ExplorePageClient() {
   const searchParams = useSearchParams();
@@ -172,7 +173,9 @@ export default function ExplorePageClient() {
 
       {!ready ? (
         <>
-          <AreaCardSkeletonCount />
+          <div className={styles.resultsMeta}>
+            <AreaCardSkeletonCount />
+          </div>
           <div
             className={listingStyles.grid}
             aria-busy="true"
@@ -185,9 +188,18 @@ export default function ExplorePageClient() {
         </>
       ) : (
         <>
-          <p className={styles.count}>
-            {results.length} {results.length === 1 ? "result" : "results"}
-          </p>
+          <div className={styles.resultsMeta}>
+            <p className={styles.count}>
+              {results.length} {results.length === 1 ? "result" : "results"}
+              {results.length > PAGE_SIZE ? (
+                <span className={styles.countRange}>
+                  {" "}
+                  · showing {(safePage - 1) * PAGE_SIZE + 1}–
+                  {Math.min(safePage * PAGE_SIZE, results.length)}
+                </span>
+              ) : null}
+            </p>
+          </div>
 
           {results.length === 0 ? (
             <p className={styles.empty}>
@@ -203,8 +215,9 @@ export default function ExplorePageClient() {
               pageSize={PAGE_SIZE}
               page={safePage}
               onPageChange={handlePageChange}
-              scrollOnPageChange={false}
+              scrollOnPageChange
               className={listingStyles.grid}
+              paginationClassName={styles.pagination}
               emptyMessage=""
               renderItem={(area, index, pageNum) => (
                 <AreaCard

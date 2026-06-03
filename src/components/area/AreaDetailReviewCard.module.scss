@@ -256,5 +256,7 @@
 }
 
 .starFilled {
-  color: $color-orange-accent;
+  color: $color-primary;
+  fill: $color-primary;
+  filter: drop-shadow(0 0 5px rgba($color-primary, 0.4));
 }

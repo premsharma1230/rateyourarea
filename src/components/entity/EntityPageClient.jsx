@@ -1,8 +1,10 @@
 "use client";
 
+import Image from "next/image";
 import Link from "next/link";
 import { Building2, Grid3x3, BedDouble, Home, MapPin, MessageSquarePlus } from "lucide-react";
 
+import { usePlacePhoto } from "@/hooks/usePlacePhoto";
 import EntityReviews from "@/components/entity/EntityReviews";
 import { useCommunityData } from "@/components/providers/CommunityDataProvider";
 import Breadcrumbs from "@/components/shared/Breadcrumbs";
@@ -61,15 +63,38 @@ export default function EntityPageClient({ type, slug, areaSlug }) {
     : "/review";
 
   const breadcrumbItems = buildExploreBreadcrumbs(normalizedType, displayName);
+  const { photoUrl } = usePlacePhoto({
+    type: normalizedType,
+    slug,
+    nameSlug: slug,
+    areaSlug: areaSlug || parentArea?.slug,
+    name: displayName,
+    image: parentArea?.image,
+    sector: parentArea?.sector,
+    address: parentArea?.address,
+    lat: parentArea?.lat,
+    lng: parentArea?.lng,
+  });
 
   return (
     <div className={styles.page}>
       <div className={styles.hero}>
-        <div className={styles.heroIcon}>
-          <Icon className={styles.icon} aria-hidden />
+        <div className={styles.heroImage}>
+          <Image
+            src={photoUrl}
+            alt={displayName}
+            fill
+            className={styles.heroImg}
+            priority
+            sizes="100vw"
+          />
         </div>
+        <div className={styles.heroOverlay} aria-hidden />
         <div className={styles.heroContent}>
-          <Breadcrumbs items={breadcrumbItems} />
+          <div className={styles.heroIcon}>
+            <Icon className={styles.icon} aria-hidden />
+          </div>
+          <Breadcrumbs items={breadcrumbItems} variant="onDark" />
           <h1 className={styles.title}>{displayName}</h1>
           <p className={styles.subtitle}>{subtitleParts.join(", ")}</p>
           <div className={styles.meta}>

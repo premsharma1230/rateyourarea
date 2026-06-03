@@ -1,19 +1,64 @@
 "use client";
 
+import { useEffect, useMemo, useState } from "react";
 import Image from "next/image";
 import Link from "next/link";
 import { motion } from "framer-motion";
-import { ChevronRight } from "lucide-react";
+import { Star } from "lucide-react";
 
-import RatingBadge from "./RatingBadge";
+import { pickImageForType } from "@/lib/entity-images";
+import { usePlacePhoto } from "@/hooks/usePlacePhoto";
 import styles from "./AreaCard.module.scss";
 
+function buildAreaSubtitle(area) {
+  const parts = [];
+  if (area.sector) {
+    parts.push(`Sector ${area.sector}`);
+  }
+  if (area.city) {
+    parts.push(area.city);
+  }
+  return parts.join(", ");
+}
+
+function buildReviewLabel(area) {
+  const count = Number(area.totalReviews) || 0;
+  if (count > 0) {
+    return `${count}+ review${count === 1 ? "" : "s"}`;
+  }
+  return "No reviews yet";
+}
+
 export default function AreaCard({ area, index = 0, animateOnMount = false }) {
+  const { photoUrl, loading } = usePlacePhoto({
+    type: area.type,
+    slug: area.slug,
+    name: area.name,
+    city: area.city,
+    sector: area.sector,
+    address: area.address,
+    image: area.image,
+    lat: area.lat,
+    lng: area.lng,
+  });
+  const fallbackPhoto = useMemo(
+    () => pickImageForType(area.type, area.slug),
+    [area.type, area.slug]
+  );
+  const [imgSrc, setImgSrc] = useState(photoUrl);
+
+  useEffect(() => {
+    setImgSrc(photoUrl || fallbackPhoto);
+  }, [photoUrl, fallbackPhoto]);
+
   const staggerDelay = Math.min(index, 8) * 0.06;
+  const location = buildAreaSubtitle(area);
+  const ratingLabel = `${Number(area.overallRating || 0).toFixed(1)}/5`;
 
   return (
     <motion.div
-      initial={{ opacity: 0, y: animateOnMount ? 12 : 30 }}
+      className={styles.cardWrap}
+      initial={{ opacity: 0, y: animateOnMount ? 12 : 20 }}
       {...(animateOnMount
         ? {
             animate: { opacity: 1, y: 0 },
@@ -22,31 +67,30 @@ export default function AreaCard({ area, index = 0, animateOnMount = false }) {
         : {
             whileInView: { opacity: 1, y: 0 },
             viewport: { once: true, margin: "-40px" },
-            transition: { delay: staggerDelay, duration: 0.45 },
+            transition: { delay: staggerDelay, duration: 0.4 },
           })}
-      whileHover={{ scale: 1.02 }}
     >
       <Link href={`/area/${area.slug}`} className={styles.card}>
-        <div className={styles.imageWrap}>
-          <div className={styles.overlay} />
+        <div className={styles.media}>
           <Image
-            src={area.image}
+            src={imgSrc || fallbackPhoto}
             alt={area.name}
             fill
-            className={styles.image}
-            sizes="(max-width: 768px) 100vw, 33vw"
+            className={`${styles.image} ${loading ? styles.imageLoading : ""}`}
+            sizes="(max-width: 640px) 100vw, (max-width: 1024px) 50vw, 320px"
+            onError={() => setImgSrc(fallbackPhoto)}
           />
+          <div className={styles.imageFade} aria-hidden />
+          <span className={styles.ratingBadge}>
+            <Star className={styles.star} aria-hidden />
+            {ratingLabel}
+          </span>
         </div>
-        <div className={styles.content}>
-          <div className={styles.header}>
-            <h3 className={styles.title}>{area.name}</h3>
-            <RatingBadge rating={area.overallRating} />
-          </div>
-          <p className={styles.description}>{area.description}</p>
-          <div className={styles.footer}>
-            <span className={styles.reviews}>{area.totalReviews}+ Reviews</span>
-            <ChevronRight className={styles.chevron} aria-hidden />
-          </div>
+
+        <div className={styles.infoPanel}>
+          <h3 className={styles.title}>{area.name}</h3>
+          {location ? <p className={styles.location}>{location}</p> : null}
+          <p className={styles.reviewCount}>{buildReviewLabel(area)}</p>
         </div>
       </Link>
     </motion.div>

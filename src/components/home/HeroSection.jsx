@@ -63,8 +63,9 @@ export default function HeroSection() {
             animate="visible"
             custom={0.2}
           >
-            Real insights from real neighbors. Explore safety, water supply,
-            noise, and community vibes before signing that lease.
+            Read honest reviews from residents,
+tenants and PG students before
+renting a flat or society.
           </motion.p>
 
           <motion.form
@@ -91,7 +92,7 @@ export default function HeroSection() {
             </div>
             <button type="submit" className={styles.exploreBtn}>
               Explore
-              <ArrowRight className="size-5" aria-hidden />
+              <ArrowRight className="size-[1.125rem]" aria-hidden />
             </button>
           </motion.form>
         </div>

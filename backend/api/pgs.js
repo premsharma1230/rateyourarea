@@ -41,7 +41,7 @@ function mapPgDataRow(row) {
     sector: cleanSector(row.sector),
     type: "pg",
     description: row.description || row.top_review,
-    // image_url: row.image_url,
+    image_url: row.image_url,
     lat: row.lat,
     lng: row.lng,
     address: row.address,

@@ -111,9 +111,15 @@
   }
 }
 
+.resultsMeta {
+  margin-bottom: 1.75rem;
+}
+
 .count {
+  margin: 0;
   font-size: 0.875rem;
   font-weight: 600;
+  letter-spacing: 0.02em;
 
   :global(.light) & {
     color: $color-on-surface-variant;
@@ -122,4 +128,13 @@
   :global(.dark) & {
     color: $color-on-surface-variant-dark;
   }
+}
+
+.countRange {
+  font-weight: 500;
+  opacity: 0.85;
+}
+
+.pagination {
+  margin-top: 2rem;
 }
